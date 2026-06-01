@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\ClientController;
 use App\Controllers\ContractController;
+use App\Controllers\CustomerPurchaseOrderController;
 use App\Controllers\DashboardController;
 use App\Controllers\DeliveryNoteController;
 use App\Controllers\DocumentFlowController;
@@ -11,6 +12,7 @@ use App\Controllers\DocumentOperationController;
 use App\Controllers\InvoiceController;
 use App\Controllers\LicitacionController;
 use App\Controllers\AuthController;
+use App\Controllers\ProductionOrderController;
 use App\Controllers\PurchaseOrderController;
 use App\Controllers\RemissionController;
 use App\Controllers\ReportController;
@@ -57,6 +59,24 @@ return static function (Router $router): void {
     $router->get('/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
     $router->get('/purchase-orders/{id}/print', [PurchaseOrderController::class, 'print']);
     $router->get('/purchase-orders/{id}/export/csv', [PurchaseOrderController::class, 'exportCsv']);
+
+    $router->get('/customer-purchase-orders', [CustomerPurchaseOrderController::class, 'index']);
+    $router->get('/customer-purchase-orders/create', [CustomerPurchaseOrderController::class, 'create']);
+    $router->post('/customer-purchase-orders', [CustomerPurchaseOrderController::class, 'store']);
+    $router->get('/customer-purchase-orders/{id}', [CustomerPurchaseOrderController::class, 'show']);
+    $router->get('/customer-purchase-orders/{id}/edit', [CustomerPurchaseOrderController::class, 'edit']);
+    $router->post('/customer-purchase-orders/{id}/update', [CustomerPurchaseOrderController::class, 'update']);
+    $router->post('/customer-purchase-orders/{id}/confirm', [CustomerPurchaseOrderController::class, 'confirm']);
+    $router->post('/customer-purchase-orders/{id}/cancel', [CustomerPurchaseOrderController::class, 'cancel']);
+    $router->post('/customer-purchase-orders/{id}/close', [CustomerPurchaseOrderController::class, 'close']);
+
+    $router->get('/production-orders', [ProductionOrderController::class, 'index']);
+    $router->get('/production-orders/create', [ProductionOrderController::class, 'create']);
+    $router->post('/production-orders', [ProductionOrderController::class, 'store']);
+    $router->get('/production-orders/{id}', [ProductionOrderController::class, 'show']);
+    $router->post('/production-orders/{id}/confirm', [ProductionOrderController::class, 'confirm']);
+    $router->post('/production-orders/{id}/cancel', [ProductionOrderController::class, 'cancel']);
+    $router->post('/production-orders/{id}/close', [ProductionOrderController::class, 'close']);
 
     $router->get('/delivery-notes', [DeliveryNoteController::class, 'index']);
     $router->get('/delivery-notes/create', [DeliveryNoteController::class, 'create']);

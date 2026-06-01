@@ -51,6 +51,9 @@ INSERT OR IGNORE INTO delivery_notes (
 VALUES
     (1, 1, 'NE-000001', '2026-03-04', 'confirmed', 'Entrega parcial obra central.', 15665000);
 
+INSERT OR IGNORE INTO delivery_note_source_orders (delivery_note_id, purchase_order_id)
+VALUES (1, 1);
+
 INSERT OR IGNORE INTO delivery_note_items (id, delivery_note_id, purchase_order_item_id, product_name, unit_measure, quantity, unit_price, total_item)
 VALUES
     (1, 1, 1, 'Chapón galvanizado 2mm', 'm2', 120, 65000, 7800000),

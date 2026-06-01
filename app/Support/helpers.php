@@ -192,6 +192,8 @@ function status_badge_class(?string $status): string
         'confirmed' => 'badge badge--confirmed',
         'cancelled' => 'badge badge--cancelled',
         'closed' => 'badge badge--closed',
+        'pending', 'stock_pending' => 'badge badge--draft',
+        'ready_for_stock_check' => 'badge badge--confirmed',
         'accepted', 'sent', 'processed' => 'badge badge--confirmed',
         'error', 'rejected' => 'badge badge--cancelled',
         default => 'badge',
@@ -267,8 +269,28 @@ function audit_action_label(string $action): string
         'update_contract_item_spec' => 'Item técnico actualizado',
         'confirm_contract_item_spec' => 'Item técnico confirmado',
         'cancel_contract_item_spec' => 'Item técnico anulado',
+        'create_customer_purchase_order' => 'OC cliente creada',
+        'update_customer_purchase_order' => 'OC cliente actualizada',
+        'confirm_customer_purchase_order' => 'OC cliente confirmada',
+        'cancel_customer_purchase_order' => 'OC cliente anulada',
+        'close_customer_purchase_order' => 'OC cliente cerrada',
+        'create_production_order' => 'Orden de producción creada',
+        'update_production_order' => 'Orden de producción actualizada',
+        'confirm_production_order' => 'Orden de producción confirmada',
+        'cancel_production_order' => 'Orden de producción anulada',
+        'close_production_order' => 'Orden de producción cerrada',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
+    };
+}
+
+function production_stage_label(?string $stage): string
+{
+    return match ((string) $stage) {
+        'pending' => 'Pendiente',
+        'stock_pending' => 'Stock pendiente',
+        'ready_for_stock_check' => 'Listo para verificar stock',
+        default => ucfirst(str_replace('_', ' ', (string) $stage)),
     };
 }
 

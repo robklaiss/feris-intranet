@@ -10,6 +10,7 @@ use App\Repositories\ClientDependencyRepository;
 use App\Repositories\ContractItemSpecRepository;
 use App\Repositories\ContractRepository;
 use App\Repositories\ContractDncpDataRepository;
+use App\Repositories\CustomerPurchaseOrderRepository;
 use App\Services\BalanceService;
 use App\Services\DocumentWorkflowService;
 use App\Services\ExportService;
@@ -50,6 +51,7 @@ final class ContractController extends Controller
             'balances' => (new BalanceService())->contractItemBalances((int) $id),
             'traceability' => (new TraceabilityService())->contractTrace((int) $id),
             'meta' => (new DocumentWorkflowService())->metadata('contracts', (int) $id),
+            'customerPurchaseOrders' => (new CustomerPurchaseOrderRepository())->byContract((int) $id),
         ]);
     }
 

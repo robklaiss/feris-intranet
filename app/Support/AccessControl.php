@@ -47,6 +47,10 @@ final class AccessControl
             return 'documents.print';
         }
 
+        if (preg_match('#^/(customer-purchase-orders|production-orders)/\d+/(confirm|cancel|close)$#', $path)) {
+            return 'documents.transition';
+        }
+
         if (preg_match('#^/(contracts|purchase-orders|delivery-notes|remissions|invoices)/\d+/export/csv$#', $path)) {
             return 'documents.export';
         }
@@ -71,6 +75,10 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/(customer-purchase-orders|production-orders)$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
         if ($path === '/licitaciones' && $method === 'POST') {
             return 'documents.create';
         }
@@ -79,11 +87,19 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/(customer-purchase-orders|production-orders)/create$#', $path)) {
+            return 'documents.create';
+        }
+
         if ($path === '/licitaciones/create') {
             return 'documents.create';
         }
 
         if (preg_match('#^/contracts/\d+/(edit|update|delete)$#', $path)) {
+            return 'documents.edit';
+        }
+
+        if (preg_match('#^/customer-purchase-orders/\d+/(edit|update)$#', $path)) {
             return 'documents.edit';
         }
 
@@ -104,6 +120,10 @@ final class AccessControl
         }
 
         if (preg_match('#^/(contracts|purchase-orders|delivery-notes|remissions|invoices)(/\d+)?$#', $path)) {
+            return 'documents.view';
+        }
+
+        if (preg_match('#^/(customer-purchase-orders|production-orders)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 

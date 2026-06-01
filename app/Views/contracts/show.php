@@ -9,8 +9,8 @@
         'type' => 'contracts',
         'document' => $contract,
         'meta' => $meta,
-        'create_url' => '/purchase-orders/create?contract_id=' . (int) $contract['id'],
-        'create_label' => 'Generar orden',
+        'create_url' => '/customer-purchase-orders/create?contract_id=' . (int) $contract['id'],
+        'create_label' => 'Crear orden de compra cliente',
         'edit_url' => '/contracts/' . (int) $contract['id'] . '/edit',
         'print_url' => '/contracts/' . (int) $contract['id'] . '/print',
         'export_url' => '/contracts/' . (int) $contract['id'] . '/export/csv',
@@ -176,6 +176,45 @@
             <?php endforeach; ?>
             <?php if (empty($contract['item_specs'])): ?>
                 <tr><td colspan="14" class="empty">No hay ítems técnicos cargados.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel__header">
+        <div>
+            <h2>Órdenes de compra cliente</h2>
+            <span class="muted">OC manuales asociadas a este contrato</span>
+        </div>
+        <?php if (can('documents.create') && ($contract['status'] ?? '') === 'confirmed'): ?>
+            <a href="/customer-purchase-orders/create?contract_id=<?= e((string) $contract['id']) ?>" class="button">Crear orden de compra cliente</a>
+        <?php endif; ?>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Número OC</th>
+                <th>Fecha</th>
+                <th>Dependencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach (($customerPurchaseOrders ?? []) as $customerOrder): ?>
+                <tr>
+                    <td><strong><?= e($customerOrder['po_number']) ?></strong></td>
+                    <td><?= e($customerOrder['po_date']) ?></td>
+                    <td><?= e($customerOrder['dependency_name']) ?></td>
+                    <td><span class="<?= e(status_badge_class($customerOrder['status'])) ?>"><?= e(document_status_label($customerOrder['status'])) ?></span></td>
+                    <td><a href="/customer-purchase-orders/<?= e((string) $customerOrder['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($customerPurchaseOrders)): ?>
+                <tr><td colspan="5" class="empty">No hay órdenes de compra cliente asociadas.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
