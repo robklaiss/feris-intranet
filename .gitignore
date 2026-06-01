@@ -1,0 +1,13 @@
+**/.DS_Store
+/.env
+/*.zip
+/database/data/*.sqlite
+/storage/logs/*.log
+/storage/exports/*
+/storage/prints/*
+/storage/backups/*
+!/storage/exports/.gitkeep
+!/storage/prints/.gitkeep
+!/storage/logs/.gitkeep
+!/storage/backups/.gitkeep
+/.env.local

@@ -1,0 +1,39 @@
+INSTALACION EN CPANEL
+
+URL esperada:
+https://proyectos.vinculo.com.py/industria-feris-crm/login
+
+1. Entrar al File Manager del subdominio proyectos.vinculo.com.py.
+2. Borrar la carpeta industria-feris-crm si existe.
+3. Subir industria-feris-crm-proyectos-final.zip al ROOT del subdominio, no dentro de una carpeta industria-feris-crm existente.
+4. Extraer el ZIP en ese root.
+5. Debe quedar esta estructura:
+
+   industria-feris-crm/
+     index.php
+     .htaccess
+     .env
+     app/
+     bootstrap/
+     config/
+     database/
+     public/
+       index.php
+       .htaccess
+       assets/
+
+6. Verificar permisos:
+   carpetas: 755
+   archivos: 644
+   database/data y storage: escribibles por PHP
+
+7. Abrir:
+   https://proyectos.vinculo.com.py/industria-feris-crm/login
+
+No debe quedar:
+
+   industria-feris-crm/
+     industria-feris-crm/
+       index.php
+
+Si aparece esa doble carpeta, se extrajo en el lugar equivocado.

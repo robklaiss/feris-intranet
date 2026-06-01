@@ -1,0 +1,19 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^public/?$ ./ [R=302,L]
+    RewriteRule ^public/(.*)$ $1 [R=302,L]
+
+    RewriteRule ^(\.env|\.env\..*|README\.md|\.DS_Store)$ - [F,L]
+    RewriteRule ^(app|bootstrap|bin|config|database|deploy|integrations|storage|tests)(/|$) - [F,L]
+
+    RewriteRule ^assets/ - [L]
+
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.php [L]
+</IfModule>
