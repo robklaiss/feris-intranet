@@ -113,6 +113,8 @@
                                 <?= csrf_field() ?>
                                 <button type="submit" class="button">Confirmar</button>
                             </form>
+                        <?php elseif (can('documents.create') && ($sewingAvailableByReceipt[(int) $receipt['id']] ?? 0) > 0): ?>
+                            <a href="/external-work-orders/<?= e((string) $order['id']) ?>/receipts/<?= e((string) $receipt['id']) ?>/sewing-orders/create" class="button">Crear confección</a>
                         <?php else: ?>
                             -
                         <?php endif; ?>
@@ -132,6 +134,30 @@
             <?php endforeach; ?>
             <?php if ($order['receipts'] === []): ?>
                 <tr><td colspan="6" class="empty">Sin recepciones registradas.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Órdenes de confección asociadas</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Costurero</th><th>Recepción</th><th>Estado</th><th>Asignación</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach (($sewingOrders ?? []) as $sewingOrder): ?>
+                <tr>
+                    <td><strong><?= e($sewingOrder['sewing_number']) ?></strong></td>
+                    <td><?= e($sewingOrder['seamster_name']) ?></td>
+                    <td><?= e($sewingOrder['receipt_number'] ?? '-') ?></td>
+                    <td><span class="<?= e(status_badge_class($sewingOrder['status'])) ?>"><?= e(sewing_order_status_label($sewingOrder['status'])) ?></span></td>
+                    <td><?= e(format_datetime($sewingOrder['assigned_at'])) ?></td>
+                    <td><a href="/sewing-orders/<?= e((string) $sewingOrder['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($sewingOrders ?? []) === []): ?>
+                <tr><td colspan="6" class="empty">Sin órdenes de confección asociadas.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>

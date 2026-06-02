@@ -25,6 +25,9 @@
         <?php if (can('documents.create') && in_array(($order['status'] ?? ''), ['completed', 'closed'], true) && ($externalEligibleItems ?? []) !== []): ?>
             <a href="/cutting-orders/<?= e((string) $order['id']) ?>/external-work-orders/create" class="button">Enviar a serigrafía/bordado</a>
         <?php endif; ?>
+        <?php if (can('documents.create') && in_array(($order['status'] ?? ''), ['completed', 'closed'], true) && ($sewingEligibleItems ?? []) !== []): ?>
+            <a href="/cutting-orders/<?= e((string) $order['id']) ?>/sewing-orders/create" class="button">Crear orden de confección</a>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -124,6 +127,30 @@
             <?php endforeach; ?>
             <?php if (($externalWorkOrders ?? []) === []): ?>
                 <tr><td colspan="7" class="empty">Sin trabajos externos asociados.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Órdenes de confección asociadas</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Costurero</th><th>Estado</th><th>Asignación</th><th>Finalización esperada</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach (($sewingOrders ?? []) as $sewingOrder): ?>
+                <tr>
+                    <td><strong><?= e($sewingOrder['sewing_number']) ?></strong></td>
+                    <td><?= e($sewingOrder['seamster_name']) ?></td>
+                    <td><span class="<?= e(status_badge_class($sewingOrder['status'])) ?>"><?= e(sewing_order_status_label($sewingOrder['status'])) ?></span></td>
+                    <td><?= e(format_datetime($sewingOrder['assigned_at'])) ?></td>
+                    <td><?= e($sewingOrder['expected_completion_date'] ?? '-') ?></td>
+                    <td><a href="/sewing-orders/<?= e((string) $sewingOrder['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($sewingOrders ?? []) === []): ?>
+                <tr><td colspan="6" class="empty">Sin órdenes de confección asociadas.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>

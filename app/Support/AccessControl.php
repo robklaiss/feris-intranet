@@ -63,6 +63,10 @@ final class AccessControl
             return 'documents.transition';
         }
 
+        if (preg_match('#^/sewing-orders/\d+/(confirm|progress|cancel|close)$#', $path)) {
+            return 'documents.transition';
+        }
+
         if (preg_match('#^/stock-checks/\d+/(reserve|cancel)$#', $path)) {
             return 'documents.transition';
         }
@@ -131,6 +135,18 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/cutting-orders/\d+/sewing-orders$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/external-work-orders/\d+/receipts/\d+/sewing-orders$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
+        if ($path === '/seamsters' && $method === 'POST') {
+            return 'documents.create';
+        }
+
         if (preg_match('#^/stock-checks/\d+/purchase-requisitions$#', $path) && $method === 'POST') {
             return 'documents.create';
         }
@@ -187,6 +203,18 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/cutting-orders/\d+/sewing-orders/create$#', $path)) {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/external-work-orders/\d+/receipts/\d+/sewing-orders/create$#', $path)) {
+            return 'documents.create';
+        }
+
+        if ($path === '/seamsters/create') {
+            return 'documents.create';
+        }
+
         if (preg_match('#^/stock-checks/\d+/purchase-requisitions/create$#', $path)) {
             return 'documents.create';
         }
@@ -223,6 +251,10 @@ final class AccessControl
             return 'documents.edit';
         }
 
+        if (preg_match('#^/seamsters/\d+/(edit|update)$#', $path)) {
+            return 'documents.edit';
+        }
+
         if (preg_match('#^/licitaciones/\d+/(edit|update|delete)$#', $path)) {
             return 'documents.edit';
         }
@@ -243,7 +275,7 @@ final class AccessControl
             return 'documents.view';
         }
 
-        if (preg_match('#^/(customer-purchase-orders|production-orders|cutting-orders|external-work-orders)(/\d+)?$#', $path)) {
+        if (preg_match('#^/(customer-purchase-orders|production-orders|cutting-orders|external-work-orders|sewing-orders)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 
@@ -251,7 +283,7 @@ final class AccessControl
             return 'documents.view';
         }
 
-        if (preg_match('#^/(suppliers|purchase-requisitions|supplier-purchase-orders|goods-receipts)(/\d+)?$#', $path)) {
+        if (preg_match('#^/(suppliers|seamsters|purchase-requisitions|supplier-purchase-orders|goods-receipts)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 

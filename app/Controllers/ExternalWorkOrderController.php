@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\ExternalWorkOrderRepository;
+use App\Repositories\SewingOrderRepository;
 use App\Repositories\SupplierRepository;
 use App\Support\Request;
 use Throwable;
@@ -76,7 +77,17 @@ final class ExternalWorkOrderController extends Controller
             return $this->redirectWithMessage('/external-work-orders', 'Trabajo externo no encontrado.', 'error');
         }
 
-        return $this->render('external_work_orders/show', ['order' => $order]);
+        $sewingRepo = new SewingOrderRepository();
+        $sewingAvailableByReceipt = [];
+        foreach (($order['receipts'] ?? []) as $receipt) {
+            $sewingAvailableByReceipt[(int) $receipt['id']] = count($sewingRepo->availableItemsFromExternalReceipt((int) $receipt['id']));
+        }
+
+        return $this->render('external_work_orders/show', [
+            'order' => $order,
+            'sewingOrders' => $sewingRepo->byExternalWorkOrder((int) $id),
+            'sewingAvailableByReceipt' => $sewingAvailableByReceipt,
+        ]);
     }
 
     public function send(Request $request, string $id)

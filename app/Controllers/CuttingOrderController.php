@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Repositories\CuttingOrderRepository;
 use App\Repositories\ExternalWorkOrderRepository;
+use App\Repositories\SewingOrderRepository;
 use App\Services\OperationalAuditService;
 use App\Support\Request;
 use Throwable;
@@ -72,12 +73,17 @@ final class CuttingOrderController extends Controller
         }
 
         $externalRepo = new ExternalWorkOrderRepository();
+        $sewingRepo = new SewingOrderRepository();
 
         return $this->render('cutting_orders/show', [
             'order' => $order,
             'externalWorkOrders' => $externalRepo->byCuttingOrder((int) $id),
             'externalEligibleItems' => in_array((string) $order['status'], ['completed', 'closed'], true)
                 ? $externalRepo->eligibleItemsFromCuttingOrder((int) $id)
+                : [],
+            'sewingOrders' => $sewingRepo->byCuttingOrder((int) $id),
+            'sewingEligibleItems' => in_array((string) $order['status'], ['completed', 'closed'], true)
+                ? $sewingRepo->availableItemsFromCuttingOrder((int) $id)
                 : [],
         ]);
     }

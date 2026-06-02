@@ -21,7 +21,9 @@ use App\Controllers\PurchaseRequisitionController;
 use App\Controllers\RawMaterialInventoryController;
 use App\Controllers\RemissionController;
 use App\Controllers\ReportController;
+use App\Controllers\SeamsterController;
 use App\Controllers\SettingsController;
+use App\Controllers\SewingOrderController;
 use App\Controllers\StockCheckController;
 use App\Controllers\SupplierController;
 use App\Controllers\SupplierPurchaseOrderController;
@@ -99,6 +101,8 @@ return static function (Router $router): void {
     $router->post('/cutting-orders/{id}/close', [CuttingOrderController::class, 'close']);
     $router->get('/cutting-orders/{id}/external-work-orders/create', [ExternalWorkOrderController::class, 'createFromCuttingOrder']);
     $router->post('/cutting-orders/{id}/external-work-orders', [ExternalWorkOrderController::class, 'storeFromCuttingOrder']);
+    $router->get('/cutting-orders/{id}/sewing-orders/create', [SewingOrderController::class, 'createFromCuttingOrder']);
+    $router->post('/cutting-orders/{id}/sewing-orders', [SewingOrderController::class, 'storeFromCuttingOrder']);
 
     $router->get('/external-work-orders', [ExternalWorkOrderController::class, 'index']);
     $router->get('/external-work-orders/{id}', [ExternalWorkOrderController::class, 'show']);
@@ -106,8 +110,24 @@ return static function (Router $router): void {
     $router->get('/external-work-orders/{id}/receipts/create', [ExternalWorkOrderController::class, 'createReceipt']);
     $router->post('/external-work-orders/{id}/receipts', [ExternalWorkOrderController::class, 'storeReceipt']);
     $router->post('/external-work-orders/{id}/receipts/{receiptId}/confirm', [ExternalWorkOrderController::class, 'confirmReceipt']);
+    $router->get('/external-work-orders/{id}/receipts/{receiptId}/sewing-orders/create', [SewingOrderController::class, 'createFromExternalReceipt']);
+    $router->post('/external-work-orders/{id}/receipts/{receiptId}/sewing-orders', [SewingOrderController::class, 'storeFromExternalReceipt']);
     $router->post('/external-work-orders/{id}/cancel', [ExternalWorkOrderController::class, 'cancel']);
     $router->post('/external-work-orders/{id}/close', [ExternalWorkOrderController::class, 'close']);
+
+    $router->get('/seamsters', [SeamsterController::class, 'index']);
+    $router->get('/seamsters/create', [SeamsterController::class, 'create']);
+    $router->post('/seamsters', [SeamsterController::class, 'store']);
+    $router->get('/seamsters/{id}', [SeamsterController::class, 'show']);
+    $router->get('/seamsters/{id}/edit', [SeamsterController::class, 'edit']);
+    $router->post('/seamsters/{id}/update', [SeamsterController::class, 'update']);
+
+    $router->get('/sewing-orders', [SewingOrderController::class, 'index']);
+    $router->get('/sewing-orders/{id}', [SewingOrderController::class, 'show']);
+    $router->post('/sewing-orders/{id}/confirm', [SewingOrderController::class, 'confirm']);
+    $router->post('/sewing-orders/{id}/progress', [SewingOrderController::class, 'progress']);
+    $router->post('/sewing-orders/{id}/cancel', [SewingOrderController::class, 'cancel']);
+    $router->post('/sewing-orders/{id}/close', [SewingOrderController::class, 'close']);
 
     $router->get('/raw-materials', [RawMaterialInventoryController::class, 'index']);
     $router->get('/raw-materials/create', [RawMaterialInventoryController::class, 'create']);

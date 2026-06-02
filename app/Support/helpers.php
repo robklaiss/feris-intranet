@@ -194,7 +194,7 @@ function status_badge_class(?string $status): string
         'closed' => 'badge badge--closed',
         'pending', 'stock_pending' => 'badge badge--draft',
         'ready_for_stock_check', 'ready_for_cutting', 'in_cutting', 'waiting_external_work', 'external_work_sent', 'external_work_received', 'in_sewing', 'quality_control', 'sufficient', 'reserved', 'active', 'cut', 'consumed', 'completed', 'returned' => 'badge badge--confirmed',
-        'in_progress', 'partial', 'partially_returned' => 'badge badge--draft',
+        'in_progress', 'partial', 'partially_returned', 'partially_completed' => 'badge badge--draft',
         'insufficient', 'depleted' => 'badge badge--cancelled',
         'inactive' => 'badge',
         'accepted', 'sent', 'processed', 'requested', 'quoted', 'approved', 'received', 'partially_received' => 'badge badge--confirmed',
@@ -313,6 +313,15 @@ function audit_action_label(string $action): string
         'confirm_external_work_receipt' => 'Recepción externa confirmada',
         'cancel_external_work_order' => 'Trabajo externo anulado',
         'close_external_work_order' => 'Trabajo externo cerrado',
+        'create_seamster' => 'Costurero creado',
+        'update_seamster' => 'Costurero actualizado',
+        'create_sewing_order' => 'Orden de confección creada',
+        'update_sewing_order' => 'Orden de confección actualizada',
+        'confirm_sewing_order' => 'Orden de confección confirmada',
+        'register_sewing_progress' => 'Avance de confección registrado',
+        'complete_sewing_order' => 'Orden de confección completada',
+        'cancel_sewing_order' => 'Orden de confección anulada',
+        'close_sewing_order' => 'Orden de confección cerrada',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -425,6 +434,42 @@ function external_next_stage_label(?string $stage): string
         'sewing' => 'Confección',
         'quality_control' => 'Control de calidad',
         default => ucfirst(str_replace('_', ' ', (string) $stage)),
+    };
+}
+
+function seamster_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'active' => 'Activo',
+        'inactive' => 'Inactivo',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function sewing_order_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmada',
+        'in_progress' => 'En proceso',
+        'partially_completed' => 'Avance parcial',
+        'completed' => 'Completada',
+        'cancelled' => 'Anulada',
+        'closed' => 'Cerrada',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function sewing_item_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'pending' => 'Pendiente',
+        'in_progress' => 'En proceso',
+        'partially_completed' => 'Avance parcial',
+        'completed' => 'Completado',
+        'rejected' => 'Rechazado',
+        'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }
 
