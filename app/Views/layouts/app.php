@@ -9,6 +9,109 @@
 <body>
 <?php $currentPath = app_request_path((string) ($_SERVER['REQUEST_URI'] ?? '/')); ?>
 <?php $currentUser = current_user(); ?>
+<?php
+$navigationGroups = [
+    [
+        'label' => 'Dashboard',
+        'items' => [
+            ['label' => 'Dashboard', 'href' => '/', 'active' => ['/']],
+        ],
+    ],
+    [
+        'label' => 'Comercial',
+        'items' => [
+            ['label' => 'Clientes', 'href' => '/clients', 'active' => ['/clients']],
+            ['label' => 'Contratos', 'href' => '/contracts', 'active' => ['/contracts']],
+            ['label' => 'Licitaciones', 'href' => '/licitaciones', 'active' => ['/licitaciones']],
+            ['label' => 'OC cliente', 'href' => '/customer-purchase-orders', 'active' => ['/customer-purchase-orders']],
+        ],
+    ],
+    [
+        'label' => 'Producción',
+        'items' => [
+            ['label' => 'Producciones', 'href' => '/production-orders', 'active' => ['/production-orders']],
+            ['label' => 'Corte', 'href' => '/cutting-orders', 'active' => ['/cutting-orders']],
+            ['label' => 'Externos', 'href' => '/external-work-orders', 'active' => ['/external-work-orders']],
+            ['label' => 'Costureros', 'href' => '/seamsters', 'active' => ['/seamsters']],
+            ['label' => 'Confección', 'href' => '/sewing-orders', 'active' => ['/sewing-orders']],
+            ['label' => 'Calidad', 'href' => '/quality-control', 'active' => ['/quality-control', '/quality-reworks']],
+            ['label' => 'Empaque', 'href' => '/packaging-orders', 'active' => ['/packaging-orders']],
+        ],
+    ],
+    [
+        'label' => 'Inventario',
+        'items' => [
+            ['label' => 'Insumos', 'href' => '/raw-materials', 'active' => ['/raw-materials']],
+            ['label' => 'Producto listo', 'href' => '/finished-goods-inventory', 'active' => ['/finished-goods-inventory']],
+        ],
+    ],
+    [
+        'label' => 'Compras',
+        'items' => [
+            ['label' => 'Proveedores', 'href' => '/suppliers', 'active' => ['/suppliers']],
+            ['label' => 'Presupuestos', 'href' => '/purchase-requisitions', 'active' => ['/purchase-requisitions']],
+            ['label' => 'OC proveedor', 'href' => '/supplier-purchase-orders', 'active' => ['/supplier-purchase-orders']],
+            ['label' => 'Recepciones', 'href' => '/goods-receipts', 'active' => ['/goods-receipts']],
+        ],
+    ],
+    [
+        'label' => 'Despacho',
+        'items' => [
+            ['label' => 'Notas', 'href' => '/delivery-notes', 'active' => ['/delivery-notes']],
+            ['label' => 'Remisiones', 'href' => '/remissions', 'active' => ['/remissions']],
+            ['label' => 'Facturas', 'href' => '/invoices', 'active' => ['/invoices']],
+        ],
+    ],
+    [
+        'label' => 'Reportes',
+        'items' => [
+            ['label' => 'Reportes', 'href' => '/reports', 'active' => ['/reports']],
+        ],
+    ],
+    [
+        'label' => 'Sistema',
+        'items' => [
+            ['label' => 'Configuración', 'href' => '/settings', 'active' => ['/settings']],
+        ],
+    ],
+];
+
+$canViewNavItem = static function (array $item): bool {
+    $permission = \App\Support\AccessControl::permissionFor('GET', (string) $item['href']);
+
+    return $permission === null || can($permission);
+};
+
+$isNavItemActive = static function (array $item) use ($currentPath): bool {
+    foreach ($item['active'] as $activePath) {
+        if ($activePath === '/') {
+            if ($currentPath === '/') {
+                return true;
+            }
+
+            continue;
+        }
+
+        if ($currentPath === $activePath || str_starts_with($currentPath, $activePath . '/')) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+$visibleNavigationGroups = [];
+foreach ($navigationGroups as $group) {
+    $items = array_values(array_filter($group['items'], $canViewNavItem));
+
+    if ($items !== []) {
+        $visibleNavigationGroups[] = [
+            'label' => $group['label'],
+            'items' => $items,
+        ];
+    }
+}
+?>
 <header class="topbar">
     <div class="brand">
         <img src="<?= e(config('app.company.logo')) ?>" alt="Industria Feris" class="brand__logo">
@@ -30,31 +133,17 @@
     <aside class="sidebar" data-nav>
         <div class="sidebar__content">
             <nav class="nav">
-                <a href="/" class="<?= $currentPath === '/' ? 'is-active' : '' ?>">Dashboard</a>
-                <a href="/clients" class="<?= str_starts_with($currentPath, '/clients') ? 'is-active' : '' ?>">Clientes</a>
-                <a href="/contracts" class="<?= str_starts_with($currentPath, '/contracts') ? 'is-active' : '' ?>">Contratos</a>
-                <a href="/licitaciones" class="<?= str_starts_with($currentPath, '/licitaciones') ? 'is-active' : '' ?>">Licitaciones</a>
-                <a href="/purchase-orders" class="<?= str_starts_with($currentPath, '/purchase-orders') ? 'is-active' : '' ?>">Órdenes</a>
-                <a href="/customer-purchase-orders" class="<?= str_starts_with($currentPath, '/customer-purchase-orders') ? 'is-active' : '' ?>">OC cliente</a>
-                <a href="/production-orders" class="<?= str_starts_with($currentPath, '/production-orders') ? 'is-active' : '' ?>">Producción</a>
-                <a href="/cutting-orders" class="<?= str_starts_with($currentPath, '/cutting-orders') ? 'is-active' : '' ?>">Corte</a>
-                <a href="/external-work-orders" class="<?= str_starts_with($currentPath, '/external-work-orders') ? 'is-active' : '' ?>">Trabajos externos</a>
-                <a href="/sewing-orders" class="<?= str_starts_with($currentPath, '/sewing-orders') ? 'is-active' : '' ?>">Confección</a>
-                <a href="/quality-control" class="<?= str_starts_with($currentPath, '/quality-control') || str_starts_with($currentPath, '/quality-reworks') ? 'is-active' : '' ?>">Calidad</a>
-                <a href="/packaging-orders" class="<?= str_starts_with($currentPath, '/packaging-orders') ? 'is-active' : '' ?>">Empaquetado</a>
-                <a href="/finished-goods-inventory" class="<?= str_starts_with($currentPath, '/finished-goods-inventory') ? 'is-active' : '' ?>">Producto terminado</a>
-                <a href="/seamsters" class="<?= str_starts_with($currentPath, '/seamsters') ? 'is-active' : '' ?>">Costureros</a>
-                <a href="/raw-materials" class="<?= str_starts_with($currentPath, '/raw-materials') ? 'is-active' : '' ?>">Insumos</a>
-                <a href="/suppliers" class="<?= str_starts_with($currentPath, '/suppliers') ? 'is-active' : '' ?>">Proveedores</a>
-                <a href="/purchase-requisitions" class="<?= str_starts_with($currentPath, '/purchase-requisitions') || str_starts_with($currentPath, '/supplier-purchase-orders') ? 'is-active' : '' ?>">Compras</a>
-                <a href="/goods-receipts" class="<?= str_starts_with($currentPath, '/goods-receipts') ? 'is-active' : '' ?>">Recepciones</a>
-                <a href="/delivery-notes" class="<?= str_starts_with($currentPath, '/delivery-notes') ? 'is-active' : '' ?>">Notas de entrega</a>
-                <a href="/remissions" class="<?= str_starts_with($currentPath, '/remissions') ? 'is-active' : '' ?>">Remisiones</a>
-                <a href="/invoices" class="<?= str_starts_with($currentPath, '/invoices') ? 'is-active' : '' ?>">Facturas</a>
-                <a href="/reports" class="<?= str_starts_with($currentPath, '/reports') ? 'is-active' : '' ?>">Reportes</a>
-                <?php if (can('settings.manage')): ?>
-                    <a href="/settings" class="<?= str_starts_with($currentPath, '/settings') ? 'is-active' : '' ?>">Configuración</a>
-                <?php endif; ?>
+                <?php foreach ($visibleNavigationGroups as $group): ?>
+                    <?php $isGroupActive = array_filter($group['items'], $isNavItemActive) !== []; ?>
+                    <details class="nav-group" <?= $isGroupActive ? 'open' : '' ?>>
+                        <summary class="nav-group__summary"><?= e($group['label']) ?></summary>
+                        <div class="nav-group__items">
+                            <?php foreach ($group['items'] as $item): ?>
+                                <a href="<?= e($item['href']) ?>" class="<?= $isNavItemActive($item) ? 'is-active' : '' ?>"><?= e($item['label']) ?></a>
+                            <?php endforeach; ?>
+                        </div>
+                    </details>
+                <?php endforeach; ?>
             </nav>
             <div class="sidebar__footer">
                 <form method="post" action="/logout" class="logout-form">
