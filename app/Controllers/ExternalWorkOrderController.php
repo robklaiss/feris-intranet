@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\ExternalWorkOrderRepository;
+use App\Repositories\QualityControlRepository;
 use App\Repositories\SewingOrderRepository;
 use App\Repositories\SupplierRepository;
 use App\Support\Request;
@@ -78,15 +79,20 @@ final class ExternalWorkOrderController extends Controller
         }
 
         $sewingRepo = new SewingOrderRepository();
+        $qualityRepo = new QualityControlRepository();
         $sewingAvailableByReceipt = [];
+        $qualityAvailableByReceipt = [];
         foreach (($order['receipts'] ?? []) as $receipt) {
             $sewingAvailableByReceipt[(int) $receipt['id']] = count($sewingRepo->availableItemsFromExternalReceipt((int) $receipt['id']));
+            $qualityAvailableByReceipt[(int) $receipt['id']] = count($qualityRepo->availableItemsFromExternalReceipt((int) $receipt['id']));
         }
 
         return $this->render('external_work_orders/show', [
             'order' => $order,
             'sewingOrders' => $sewingRepo->byExternalWorkOrder((int) $id),
+            'qualityChecks' => $qualityRepo->search(['external_work_order_id' => (int) $id]),
             'sewingAvailableByReceipt' => $sewingAvailableByReceipt,
+            'qualityAvailableByReceipt' => $qualityAvailableByReceipt,
         ]);
     }
 

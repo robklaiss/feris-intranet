@@ -194,6 +194,7 @@ function status_badge_class(?string $status): string
         'closed' => 'badge badge--closed',
         'pending', 'stock_pending' => 'badge badge--draft',
         'ready_for_stock_check', 'ready_for_cutting', 'in_cutting', 'waiting_external_work', 'external_work_sent', 'external_work_received', 'in_sewing', 'quality_control', 'sufficient', 'reserved', 'active', 'cut', 'consumed', 'completed', 'returned' => 'badge badge--confirmed',
+        'rework_required' => 'badge badge--draft',
         'in_progress', 'partial', 'partially_returned', 'partially_completed' => 'badge badge--draft',
         'insufficient', 'depleted' => 'badge badge--cancelled',
         'inactive' => 'badge',
@@ -322,6 +323,14 @@ function audit_action_label(string $action): string
         'complete_sewing_order' => 'Orden de confección completada',
         'cancel_sewing_order' => 'Orden de confección anulada',
         'close_sewing_order' => 'Orden de confección cerrada',
+        'create_quality_control_check' => 'Control de calidad creado',
+        'register_quality_control_results' => 'Resultados de calidad registrados',
+        'confirm_quality_control_check' => 'Control de calidad confirmado',
+        'cancel_quality_control_check' => 'Control de calidad anulado',
+        'close_quality_control_check' => 'Control de calidad cerrado',
+        'complete_quality_rework_order' => 'Reproceso completado',
+        'close_quality_rework_order' => 'Reproceso cerrado',
+        'cancel_quality_rework_order' => 'Reproceso anulado',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -340,6 +349,7 @@ function production_stage_label(?string $stage): string
         'external_work_received' => 'Retorno externo parcial',
         'in_sewing' => 'Pendiente de confección',
         'quality_control' => 'Pendiente de control de calidad',
+        'rework_required' => 'Reproceso requerido',
         default => ucfirst(str_replace('_', ' ', (string) $stage)),
     };
 }
@@ -469,6 +479,45 @@ function sewing_item_status_label(?string $status): string
         'completed' => 'Completado',
         'rejected' => 'Rechazado',
         'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function quality_control_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmado',
+        'partially_approved' => 'Aprobado parcial',
+        'approved' => 'Aprobado',
+        'rejected' => 'Rechazado',
+        'rework_required' => 'Reproceso requerido',
+        'cancelled' => 'Anulado',
+        'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function quality_control_item_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'pending' => 'Pendiente',
+        'approved' => 'Aprobado',
+        'rejected' => 'Rechazado',
+        'rework_required' => 'Reproceso',
+        'partial' => 'Parcial',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function quality_rework_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'assigned' => 'Asignado',
+        'completed' => 'Completado',
+        'cancelled' => 'Anulado',
+        'closed' => 'Cerrado',
         default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }

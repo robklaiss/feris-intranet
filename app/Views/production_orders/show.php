@@ -124,6 +124,53 @@
 
 <section class="grid-two">
     <article class="panel">
+        <h2>Controles de calidad</h2>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Número</th><th>Origen</th><th>Estado</th><th>Controlado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <?php foreach (($qualityChecks ?? []) as $check): ?>
+                    <tr>
+                        <td><strong><?= e($check['qc_number']) ?></strong></td>
+                        <td><?= e($check['sewing_number'] ?? $check['receipt_number'] ?? '-') ?></td>
+                        <td><span class="<?= e(status_badge_class($check['status'])) ?>"><?= e(quality_control_status_label($check['status'])) ?></span></td>
+                        <td><?= e(format_datetime($check['checked_at'])) ?></td>
+                        <td><a href="/quality-control/<?= e((string) $check['id']) ?>">Ver</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (($qualityChecks ?? []) === []): ?>
+                    <tr><td colspan="5" class="empty">Sin controles de calidad.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </article>
+    <article class="panel">
+        <h2>Reprocesos</h2>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Número</th><th>Ítem</th><th>Cantidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <?php foreach (($qualityReworks ?? []) as $rework): ?>
+                    <tr>
+                        <td><strong><?= e($rework['rework_number']) ?></strong></td>
+                        <td><?= e($rework['item_code']) ?></td>
+                        <td><?= e((string) $rework['quantity']) ?></td>
+                        <td><span class="<?= e(status_badge_class($rework['status'])) ?>"><?= e(quality_rework_status_label($rework['status'])) ?></span></td>
+                        <td><a href="/quality-reworks/<?= e((string) $rework['id']) ?>">Ver</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (($qualityReworks ?? []) === []): ?>
+                    <tr><td colspan="5" class="empty">Sin reprocesos.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+
+<section class="grid-two">
+    <article class="panel">
         <h2>Datos</h2>
         <dl class="detail-list">
             <div><dt>Cliente</dt><dd><?= e($order['client_name']) ?></dd></div>

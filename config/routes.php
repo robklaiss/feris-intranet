@@ -16,6 +16,7 @@ use App\Controllers\InvoiceController;
 use App\Controllers\LicitacionController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductionOrderController;
+use App\Controllers\QualityControlController;
 use App\Controllers\PurchaseOrderController;
 use App\Controllers\PurchaseRequisitionController;
 use App\Controllers\RawMaterialInventoryController;
@@ -112,6 +113,8 @@ return static function (Router $router): void {
     $router->post('/external-work-orders/{id}/receipts/{receiptId}/confirm', [ExternalWorkOrderController::class, 'confirmReceipt']);
     $router->get('/external-work-orders/{id}/receipts/{receiptId}/sewing-orders/create', [SewingOrderController::class, 'createFromExternalReceipt']);
     $router->post('/external-work-orders/{id}/receipts/{receiptId}/sewing-orders', [SewingOrderController::class, 'storeFromExternalReceipt']);
+    $router->get('/external-work-orders/{id}/receipts/{receiptId}/quality-control/create', [QualityControlController::class, 'createFromExternalReceipt']);
+    $router->post('/external-work-orders/{id}/receipts/{receiptId}/quality-control', [QualityControlController::class, 'storeFromExternalReceipt']);
     $router->post('/external-work-orders/{id}/cancel', [ExternalWorkOrderController::class, 'cancel']);
     $router->post('/external-work-orders/{id}/close', [ExternalWorkOrderController::class, 'close']);
 
@@ -128,6 +131,20 @@ return static function (Router $router): void {
     $router->post('/sewing-orders/{id}/progress', [SewingOrderController::class, 'progress']);
     $router->post('/sewing-orders/{id}/cancel', [SewingOrderController::class, 'cancel']);
     $router->post('/sewing-orders/{id}/close', [SewingOrderController::class, 'close']);
+    $router->get('/sewing-orders/{id}/quality-control/create', [QualityControlController::class, 'createFromSewingOrder']);
+    $router->post('/sewing-orders/{id}/quality-control', [QualityControlController::class, 'storeFromSewingOrder']);
+
+    $router->get('/quality-control', [QualityControlController::class, 'index']);
+    $router->get('/quality-control/{id}', [QualityControlController::class, 'show']);
+    $router->post('/quality-control/{id}/results', [QualityControlController::class, 'results']);
+    $router->post('/quality-control/{id}/confirm', [QualityControlController::class, 'confirm']);
+    $router->post('/quality-control/{id}/cancel', [QualityControlController::class, 'cancel']);
+    $router->post('/quality-control/{id}/close', [QualityControlController::class, 'close']);
+    $router->get('/quality-reworks', [QualityControlController::class, 'reworks']);
+    $router->get('/quality-reworks/{id}', [QualityControlController::class, 'reworkShow']);
+    $router->post('/quality-reworks/{id}/complete', [QualityControlController::class, 'completeRework']);
+    $router->post('/quality-reworks/{id}/cancel', [QualityControlController::class, 'cancelRework']);
+    $router->post('/quality-reworks/{id}/close', [QualityControlController::class, 'closeRework']);
 
     $router->get('/raw-materials', [RawMaterialInventoryController::class, 'index']);
     $router->get('/raw-materials/create', [RawMaterialInventoryController::class, 'create']);

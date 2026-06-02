@@ -115,6 +115,8 @@
                             </form>
                         <?php elseif (can('documents.create') && ($sewingAvailableByReceipt[(int) $receipt['id']] ?? 0) > 0): ?>
                             <a href="/external-work-orders/<?= e((string) $order['id']) ?>/receipts/<?= e((string) $receipt['id']) ?>/sewing-orders/create" class="button">Crear confección</a>
+                        <?php elseif (can('documents.create') && ($qualityAvailableByReceipt[(int) $receipt['id']] ?? 0) > 0): ?>
+                            <a href="/external-work-orders/<?= e((string) $order['id']) ?>/receipts/<?= e((string) $receipt['id']) ?>/quality-control/create" class="button">Crear calidad</a>
                         <?php else: ?>
                             -
                         <?php endif; ?>
@@ -158,6 +160,30 @@
             <?php endforeach; ?>
             <?php if (($sewingOrders ?? []) === []): ?>
                 <tr><td colspan="6" class="empty">Sin órdenes de confección asociadas.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+<section class="panel">
+    <h2>Controles de calidad asociados</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Recepción</th><th>Estado</th><th>Controlado</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach (($qualityChecks ?? []) as $check): ?>
+                <tr>
+                    <td><strong><?= e($check['qc_number']) ?></strong></td>
+                    <td><?= e($check['receipt_number'] ?? '-') ?></td>
+                    <td><span class="<?= e(status_badge_class($check['status'])) ?>"><?= e(quality_control_status_label($check['status'])) ?></span></td>
+                    <td><?= e(format_datetime($check['checked_at'])) ?></td>
+                    <td><a href="/quality-control/<?= e((string) $check['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($qualityChecks ?? []) === []): ?>
+                <tr><td colspan="5" class="empty">Sin controles de calidad asociados.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>

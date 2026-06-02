@@ -24,6 +24,9 @@
                 <button type="submit" class="button button--secondary">Anular</button>
             </form>
         <?php endif; ?>
+        <?php if (can('documents.create') && in_array(($order['status'] ?? ''), ['completed', 'closed'], true)): ?>
+            <a href="/sewing-orders/<?= e((string) $order['id']) ?>/quality-control/create" class="button">Crear control de calidad</a>
+        <?php endif; ?>
         <?php if (can('documents.transition') && ($order['status'] ?? '') === 'completed'): ?>
             <form method="post" action="/sewing-orders/<?= e((string) $order['id']) ?>/close">
                 <?= csrf_field() ?>

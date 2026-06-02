@@ -40,6 +40,7 @@
                 <a href="/cutting-orders" class="<?= str_starts_with($currentPath, '/cutting-orders') ? 'is-active' : '' ?>">Corte</a>
                 <a href="/external-work-orders" class="<?= str_starts_with($currentPath, '/external-work-orders') ? 'is-active' : '' ?>">Trabajos externos</a>
                 <a href="/sewing-orders" class="<?= str_starts_with($currentPath, '/sewing-orders') ? 'is-active' : '' ?>">Confección</a>
+                <a href="/quality-control" class="<?= str_starts_with($currentPath, '/quality-control') || str_starts_with($currentPath, '/quality-reworks') ? 'is-active' : '' ?>">Calidad</a>
                 <a href="/seamsters" class="<?= str_starts_with($currentPath, '/seamsters') ? 'is-active' : '' ?>">Costureros</a>
                 <a href="/raw-materials" class="<?= str_starts_with($currentPath, '/raw-materials') ? 'is-active' : '' ?>">Insumos</a>
                 <a href="/suppliers" class="<?= str_starts_with($currentPath, '/suppliers') ? 'is-active' : '' ?>">Proveedores</a>

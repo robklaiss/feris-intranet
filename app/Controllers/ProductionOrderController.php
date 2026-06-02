@@ -8,6 +8,8 @@ use App\Repositories\CustomerPurchaseOrderRepository;
 use App\Repositories\CuttingOrderRepository;
 use App\Repositories\ExternalWorkOrderRepository;
 use App\Repositories\ProductionOrderRepository;
+use App\Repositories\QualityControlRepository;
+use App\Repositories\QualityReworkRepository;
 use App\Repositories\StockCheckRepository;
 use App\Services\NumberingService;
 use App\Services\OperationalAuditService;
@@ -91,6 +93,8 @@ final class ProductionOrderController extends Controller
             'activeReservations' => $stockRepo->activeReservations((int) $id),
             'cuttingOrders' => (new CuttingOrderRepository())->byProductionOrder((int) $id),
             'externalWorkOrders' => (new ExternalWorkOrderRepository())->search(['production_order_id' => (int) $id]),
+            'qualityChecks' => (new QualityControlRepository())->byProductionOrder((int) $id),
+            'qualityReworks' => (new QualityReworkRepository())->search(['production_order_id' => (int) $id]),
         ]);
     }
 
