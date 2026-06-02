@@ -193,8 +193,8 @@ function status_badge_class(?string $status): string
         'cancelled' => 'badge badge--cancelled',
         'closed' => 'badge badge--closed',
         'pending', 'stock_pending' => 'badge badge--draft',
-        'ready_for_stock_check', 'ready_for_cutting', 'in_cutting', 'waiting_external_work', 'in_sewing', 'sufficient', 'reserved', 'active', 'cut', 'consumed', 'completed' => 'badge badge--confirmed',
-        'in_progress', 'partial' => 'badge badge--draft',
+        'ready_for_stock_check', 'ready_for_cutting', 'in_cutting', 'waiting_external_work', 'external_work_sent', 'external_work_received', 'in_sewing', 'quality_control', 'sufficient', 'reserved', 'active', 'cut', 'consumed', 'completed', 'returned' => 'badge badge--confirmed',
+        'in_progress', 'partial', 'partially_returned' => 'badge badge--draft',
         'insufficient', 'depleted' => 'badge badge--cancelled',
         'inactive' => 'badge',
         'accepted', 'sent', 'processed', 'requested', 'quoted', 'approved', 'received', 'partially_received' => 'badge badge--confirmed',
@@ -306,6 +306,13 @@ function audit_action_label(string $action): string
         'complete_cutting_order' => 'Orden de corte completada',
         'cancel_cutting_order' => 'Orden de corte anulada',
         'close_cutting_order' => 'Orden de corte cerrada',
+        'create_external_work_order' => 'Trabajo externo creado',
+        'update_external_work_order' => 'Trabajo externo actualizado',
+        'send_external_work_order' => 'Trabajo externo enviado',
+        'create_external_work_receipt' => 'Recepción externa creada',
+        'confirm_external_work_receipt' => 'Recepción externa confirmada',
+        'cancel_external_work_order' => 'Trabajo externo anulado',
+        'close_external_work_order' => 'Trabajo externo cerrado',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -320,7 +327,10 @@ function production_stage_label(?string $stage): string
         'ready_for_cutting' => 'Listo para corte',
         'in_cutting' => 'En corte',
         'waiting_external_work' => 'Pendiente de serigrafía/bordado',
+        'external_work_sent' => 'En proveedor externo',
+        'external_work_received' => 'Retorno externo parcial',
         'in_sewing' => 'Pendiente de confección',
+        'quality_control' => 'Pendiente de control de calidad',
         default => ucfirst(str_replace('_', ' ', (string) $stage)),
     };
 }
@@ -357,6 +367,64 @@ function cutting_material_status_label(?string $status): string
         'released' => 'Liberado',
         'cancelled' => 'Anulado',
         default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function external_work_order_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmado',
+        'sent' => 'Enviado',
+        'partially_returned' => 'Retorno parcial',
+        'returned' => 'Retornado',
+        'cancelled' => 'Anulado',
+        'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function external_work_item_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'pending' => 'Pendiente',
+        'sent' => 'Enviado',
+        'partially_returned' => 'Retorno parcial',
+        'returned' => 'Retornado',
+        'rejected' => 'Rechazado',
+        'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function external_work_receipt_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmada',
+        'cancelled' => 'Anulada',
+        'closed' => 'Cerrada',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function external_work_type_label(?string $type): string
+{
+    return match ((string) $type) {
+        'embroidery' => 'Bordado',
+        'screen_printing' => 'Serigrafía',
+        'both' => 'Serigrafía y bordado',
+        'other' => 'Otro',
+        default => ucfirst(str_replace('_', ' ', (string) $type)),
+    };
+}
+
+function external_next_stage_label(?string $stage): string
+{
+    return match ((string) $stage) {
+        'sewing' => 'Confección',
+        'quality_control' => 'Control de calidad',
+        default => ucfirst(str_replace('_', ' ', (string) $stage)),
     };
 }
 

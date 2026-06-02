@@ -55,6 +55,14 @@ final class AccessControl
             return 'documents.transition';
         }
 
+        if (preg_match('#^/external-work-orders/\d+/(send|cancel|close)$#', $path)) {
+            return 'documents.transition';
+        }
+
+        if (preg_match('#^/external-work-orders/\d+/receipts/\d+/confirm$#', $path)) {
+            return 'documents.transition';
+        }
+
         if (preg_match('#^/stock-checks/\d+/(reserve|cancel)$#', $path)) {
             return 'documents.transition';
         }
@@ -115,6 +123,14 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/cutting-orders/\d+/external-work-orders$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/external-work-orders/\d+/receipts$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
         if (preg_match('#^/stock-checks/\d+/purchase-requisitions$#', $path) && $method === 'POST') {
             return 'documents.create';
         }
@@ -160,6 +176,14 @@ final class AccessControl
         }
 
         if (preg_match('#^/production-orders/\d+/cutting-orders/create$#', $path)) {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/cutting-orders/\d+/external-work-orders/create$#', $path)) {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/external-work-orders/\d+/receipts/create$#', $path)) {
             return 'documents.create';
         }
 
@@ -219,7 +243,7 @@ final class AccessControl
             return 'documents.view';
         }
 
-        if (preg_match('#^/(customer-purchase-orders|production-orders|cutting-orders)(/\d+)?$#', $path)) {
+        if (preg_match('#^/(customer-purchase-orders|production-orders|cutting-orders|external-work-orders)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 

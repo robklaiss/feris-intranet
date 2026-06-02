@@ -38,6 +38,7 @@
                 <a href="/customer-purchase-orders" class="<?= str_starts_with($currentPath, '/customer-purchase-orders') ? 'is-active' : '' ?>">OC cliente</a>
                 <a href="/production-orders" class="<?= str_starts_with($currentPath, '/production-orders') ? 'is-active' : '' ?>">Producción</a>
                 <a href="/cutting-orders" class="<?= str_starts_with($currentPath, '/cutting-orders') ? 'is-active' : '' ?>">Corte</a>
+                <a href="/external-work-orders" class="<?= str_starts_with($currentPath, '/external-work-orders') ? 'is-active' : '' ?>">Trabajos externos</a>
                 <a href="/raw-materials" class="<?= str_starts_with($currentPath, '/raw-materials') ? 'is-active' : '' ?>">Insumos</a>
                 <a href="/suppliers" class="<?= str_starts_with($currentPath, '/suppliers') ? 'is-active' : '' ?>">Proveedores</a>
                 <a href="/purchase-requisitions" class="<?= str_starts_with($currentPath, '/purchase-requisitions') || str_starts_with($currentPath, '/supplier-purchase-orders') ? 'is-active' : '' ?>">Compras</a>

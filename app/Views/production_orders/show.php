@@ -97,6 +97,31 @@
     </div>
 </section>
 
+<section class="panel">
+    <h2>Trabajos externos</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Corte</th><th>Tipo</th><th>Proveedor</th><th>Estado</th><th>Nota envío</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach (($externalWorkOrders ?? []) as $externalOrder): ?>
+                <tr>
+                    <td><strong><?= e($externalOrder['external_work_number']) ?></strong></td>
+                    <td><a href="/cutting-orders/<?= e((string) $externalOrder['cutting_order_id']) ?>"><?= e($externalOrder['cutting_number']) ?></a></td>
+                    <td><?= e(external_work_type_label($externalOrder['work_type'])) ?></td>
+                    <td><?= e($externalOrder['supplier_name'] ?? '-') ?></td>
+                    <td><span class="<?= e(status_badge_class($externalOrder['status'])) ?>"><?= e(external_work_order_status_label($externalOrder['status'])) ?></span></td>
+                    <td><?= e($externalOrder['send_note_number'] ?? '-') ?></td>
+                    <td><a href="/external-work-orders/<?= e((string) $externalOrder['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($externalWorkOrders ?? []) === []): ?>
+                <tr><td colspan="7" class="empty">Sin trabajos externos.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
 <section class="grid-two">
     <article class="panel">
         <h2>Datos</h2>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\CuttingOrderRepository;
+use App\Repositories\ExternalWorkOrderRepository;
 use App\Services\OperationalAuditService;
 use App\Support\Request;
 use Throwable;
@@ -70,7 +71,15 @@ final class CuttingOrderController extends Controller
             return $this->redirectWithMessage('/cutting-orders', 'Orden de corte no encontrada.', 'error');
         }
 
-        return $this->render('cutting_orders/show', ['order' => $order]);
+        $externalRepo = new ExternalWorkOrderRepository();
+
+        return $this->render('cutting_orders/show', [
+            'order' => $order,
+            'externalWorkOrders' => $externalRepo->byCuttingOrder((int) $id),
+            'externalEligibleItems' => in_array((string) $order['status'], ['completed', 'closed'], true)
+                ? $externalRepo->eligibleItemsFromCuttingOrder((int) $id)
+                : [],
+        ]);
     }
 
     public function confirm(Request $request, string $id)

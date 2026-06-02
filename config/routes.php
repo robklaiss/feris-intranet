@@ -10,6 +10,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\DeliveryNoteController;
 use App\Controllers\DocumentFlowController;
 use App\Controllers\DocumentOperationController;
+use App\Controllers\ExternalWorkOrderController;
 use App\Controllers\GoodsReceiptController;
 use App\Controllers\InvoiceController;
 use App\Controllers\LicitacionController;
@@ -96,6 +97,17 @@ return static function (Router $router): void {
     $router->post('/cutting-orders/{id}/complete', [CuttingOrderController::class, 'complete']);
     $router->post('/cutting-orders/{id}/cancel', [CuttingOrderController::class, 'cancel']);
     $router->post('/cutting-orders/{id}/close', [CuttingOrderController::class, 'close']);
+    $router->get('/cutting-orders/{id}/external-work-orders/create', [ExternalWorkOrderController::class, 'createFromCuttingOrder']);
+    $router->post('/cutting-orders/{id}/external-work-orders', [ExternalWorkOrderController::class, 'storeFromCuttingOrder']);
+
+    $router->get('/external-work-orders', [ExternalWorkOrderController::class, 'index']);
+    $router->get('/external-work-orders/{id}', [ExternalWorkOrderController::class, 'show']);
+    $router->post('/external-work-orders/{id}/send', [ExternalWorkOrderController::class, 'send']);
+    $router->get('/external-work-orders/{id}/receipts/create', [ExternalWorkOrderController::class, 'createReceipt']);
+    $router->post('/external-work-orders/{id}/receipts', [ExternalWorkOrderController::class, 'storeReceipt']);
+    $router->post('/external-work-orders/{id}/receipts/{receiptId}/confirm', [ExternalWorkOrderController::class, 'confirmReceipt']);
+    $router->post('/external-work-orders/{id}/cancel', [ExternalWorkOrderController::class, 'cancel']);
+    $router->post('/external-work-orders/{id}/close', [ExternalWorkOrderController::class, 'close']);
 
     $router->get('/raw-materials', [RawMaterialInventoryController::class, 'index']);
     $router->get('/raw-materials/create', [RawMaterialInventoryController::class, 'create']);

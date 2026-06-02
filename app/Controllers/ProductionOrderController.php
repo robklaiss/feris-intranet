@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Repositories\CustomerPurchaseOrderRepository;
 use App\Repositories\CuttingOrderRepository;
+use App\Repositories\ExternalWorkOrderRepository;
 use App\Repositories\ProductionOrderRepository;
 use App\Repositories\StockCheckRepository;
 use App\Services\NumberingService;
@@ -89,6 +90,7 @@ final class ProductionOrderController extends Controller
             'stockChecks' => $stockRepo->byProductionOrder((int) $id),
             'activeReservations' => $stockRepo->activeReservations((int) $id),
             'cuttingOrders' => (new CuttingOrderRepository())->byProductionOrder((int) $id),
+            'externalWorkOrders' => (new ExternalWorkOrderRepository())->search(['production_order_id' => (int) $id]),
         ]);
     }
 

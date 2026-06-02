@@ -22,6 +22,9 @@
         <?php if (can('documents.transition') && ($order['status'] ?? '') === 'completed'): ?>
             <form method="post" action="/cutting-orders/<?= e((string) $order['id']) ?>/close"><?= csrf_field() ?><button class="button button--secondary" type="submit">Cerrar</button></form>
         <?php endif; ?>
+        <?php if (can('documents.create') && in_array(($order['status'] ?? ''), ['completed', 'closed'], true) && ($externalEligibleItems ?? []) !== []): ?>
+            <a href="/cutting-orders/<?= e((string) $order['id']) ?>/external-work-orders/create" class="button">Enviar a serigrafía/bordado</a>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -100,6 +103,31 @@
             </div>
         <?php endif; ?>
     </form>
+</section>
+
+<section class="panel">
+    <h2>Trabajos externos asociados</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Tipo</th><th>Proveedor</th><th>Estado</th><th>Nota envío</th><th>Retorno esperado</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach (($externalWorkOrders ?? []) as $externalOrder): ?>
+                <tr>
+                    <td><strong><?= e($externalOrder['external_work_number']) ?></strong></td>
+                    <td><?= e(external_work_type_label($externalOrder['work_type'])) ?></td>
+                    <td><?= e($externalOrder['supplier_name'] ?? '-') ?></td>
+                    <td><span class="<?= e(status_badge_class($externalOrder['status'])) ?>"><?= e(external_work_order_status_label($externalOrder['status'])) ?></span></td>
+                    <td><?= e($externalOrder['send_note_number'] ?? '-') ?></td>
+                    <td><?= e($externalOrder['expected_return_date'] ?? '-') ?></td>
+                    <td><a href="/external-work-orders/<?= e((string) $externalOrder['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($externalWorkOrders ?? []) === []): ?>
+                <tr><td colspan="7" class="empty">Sin trabajos externos asociados.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <section class="panel">
