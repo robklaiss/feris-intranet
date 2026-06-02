@@ -1,10 +1,14 @@
+<?php
+$cssPath = base_path('public/assets/css/app.css');
+$cssVersion = is_file($cssPath) ? (string) filemtime($cssPath) : '1';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e(config('app.name')) ?></title>
-    <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('css/app.css') . '?v=' . $cssVersion) ?>">
 </head>
 <body>
 <?php $currentPath = app_request_path((string) ($_SERVER['REQUEST_URI'] ?? '/')); ?>
@@ -139,7 +143,7 @@ foreach ($navigationGroups as $group) {
                         <summary class="nav-group__summary"><?= e($group['label']) ?></summary>
                         <div class="nav-group__items">
                             <?php foreach ($group['items'] as $item): ?>
-                                <a href="<?= e($item['href']) ?>" class="<?= $isNavItemActive($item) ? 'is-active' : '' ?>"><?= e($item['label']) ?></a>
+                                <a href="<?= e(url($item['href'])) ?>" class="<?= $isNavItemActive($item) ? 'is-active' : '' ?>"><?= e($item['label']) ?></a>
                             <?php endforeach; ?>
                         </div>
                     </details>
