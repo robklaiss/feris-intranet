@@ -30,13 +30,22 @@
 <section class="panel">
     <div class="panel__header">
         <h2>Trazabilidad</h2>
-        <span class="muted">Remisión -> factura</span>
+        <span class="muted">Inventario terminado -> remisión -> factura</span>
     </div>
     <div class="trace-list">
         <?php foreach ($traceability as $item): ?>
             <article class="trace-card">
                 <strong><?= e($item['product_name']) ?></strong>
                 <span>Remisión: <?= e((string) $item['quantity']) ?> <?= e($item['unit_measure']) ?></span>
+                <?php if (!empty($item['finished_goods_inventory_id'])): ?>
+                    <span>Inventario terminado: <a href="/finished-goods-inventory/<?= e((string) $item['finished_goods_inventory_id']) ?>"><?= e($item['finished_goods_internal_code'] ?? ('#' . $item['finished_goods_inventory_id'])) ?></a></span>
+                    <span>Producción: <a href="/production-orders/<?= e((string) $item['production_order_id']) ?>"><?= e($item['production_number'] ?? '') ?></a></span>
+                    <span>Empaque: <a href="/packaging-orders/<?= e((string) $item['packaging_order_id']) ?>"><?= e($item['packaging_number'] ?? '') ?></a></span>
+                    <?php if (!empty($item['quality_control_check_id'])): ?>
+                        <span>Calidad: <a href="/quality-control/<?= e((string) $item['quality_control_check_id']) ?>"><?= e($item['qc_number'] ?? '') ?></a></span>
+                    <?php endif; ?>
+                    <span>Contrato: <?= e($item['contract_number'] ?? '') ?> · Ítem <?= e($item['item_code'] ?? '') ?></span>
+                <?php endif; ?>
                 <?php foreach ($item['invoice_items'] as $invoiceItem): ?>
                     <span>Factura <?= e($invoiceItem['invoice_number']) ?>: <?= e((string) $invoiceItem['quantity']) ?></span>
                 <?php endforeach; ?>
@@ -51,14 +60,23 @@
 
 <section class="grid-two">
     <article class="panel">
-        <h2>Notas vinculadas</h2>
+        <h2><?= !empty($remission['source_finished_goods']) ? 'Inventario vinculado' : 'Notas vinculadas' ?></h2>
         <div class="list-stack">
-            <?php foreach ($remission['source_notes'] as $note): ?>
-                <div class="list-item">
-                    <strong><?= e($note['note_number']) ?></strong>
-                    <span><?= e($note['note_date']) ?></span>
-                </div>
-            <?php endforeach; ?>
+            <?php if (!empty($remission['source_finished_goods'])): ?>
+                <?php foreach ($remission['source_finished_goods'] as $inventory): ?>
+                    <div class="list-item">
+                        <strong><a href="/finished-goods-inventory/<?= e((string) $inventory['id']) ?>"><?= e($inventory['internal_code']) ?></a></strong>
+                        <span><?= e($inventory['item_code']) ?> · <?= e($inventory['size'] ?? '-') ?> · <?= e($inventory['color'] ?? '-') ?> · <?= e($inventory['label'] ?? '-') ?></span>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <?php foreach ($remission['source_notes'] as $note): ?>
+                    <div class="list-item">
+                        <strong><?= e($note['note_number']) ?></strong>
+                        <span><?= e($note['note_date']) ?></span>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </article>
     <article class="panel">
@@ -66,6 +84,7 @@
         <dl class="detail-list">
             <div><dt>Cliente</dt><dd><?= e($remission['client_name']) ?></dd></div>
             <div><dt>Contrato</dt><dd><?= e($remission['contract_number']) ?></dd></div>
+            <div><dt>Origen</dt><dd><?= !empty($remission['source_finished_goods']) ? 'Inventario terminado' : 'Nota interna' ?></dd></div>
             <div><dt>N° de ID</dt><dd><?= e($remission['reference_number']) ?></dd></div>
             <div><dt>Modalidad</dt><dd><?= e($remission['contract_type']) ?></dd></div>
             <div><dt>RUC</dt><dd><?= e($remission['tax_id']) ?></dd></div>
@@ -119,6 +138,7 @@
             <thead>
             <tr>
                 <th>Producto</th>
+                <th>Trazabilidad</th>
                 <th>Unidad</th>
                 <th>Cantidad</th>
                 <th>Precio</th>
@@ -129,6 +149,14 @@
             <?php foreach ($remission['items'] as $item): ?>
                 <tr>
                     <td><?= e($item['product_name']) ?></td>
+                    <td>
+                        <?php if (!empty($item['finished_goods_inventory_id'])): ?>
+                            <a href="/finished-goods-inventory/<?= e((string) $item['finished_goods_inventory_id']) ?>"><?= e($item['finished_goods_internal_code'] ?? '') ?></a>
+                            <small class="muted"><?= e($item['item_code'] ?? '') ?> · <?= e($item['size'] ?? '-') ?> · <?= e($item['color'] ?? '-') ?></small>
+                        <?php else: ?>
+                            <span class="muted">Nota interna</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= e($item['unit_measure']) ?></td>
                     <td><?= e((string) $item['quantity']) ?></td>
                     <td>Gs. <?= e(money($item['unit_price'])) ?></td>

@@ -8,7 +8,12 @@
         </p>
         <span class="<?= e(status_badge_class($item['status'])) ?>"><?= e(finished_goods_status_label($item['status'])) ?></span>
     </div>
-    <a href="/finished-goods-inventory" class="button button--secondary">Volver</a>
+    <div class="action-row">
+        <?php if (in_array((string) $item['status'], ['available', 'reserved'], true) && (float) ($item['real_available'] ?? 0) > 0.0001): ?>
+            <a href="/remissions/create?source=finished_goods&amp;finished_goods_inventory_ids=<?= e((string) $item['id']) ?>" class="button">Generar remisión</a>
+        <?php endif; ?>
+        <a href="/finished-goods-inventory" class="button button--secondary">Volver</a>
+    </div>
 </section>
 
 <section class="grid-two">
@@ -35,6 +40,7 @@
         <h2>Cantidades</h2>
         <dl class="detail-list">
             <div><dt>Disponible</dt><dd><?= e((string) $item['quantity_available']) ?> <?= e($item['unit'] ?? '') ?></dd></div>
+            <div><dt>Disponible real</dt><dd><?= e((string) ($item['real_available'] ?? $item['quantity_available'])) ?> <?= e($item['unit'] ?? '') ?></dd></div>
             <div><dt>Reservado</dt><dd><?= e((string) $item['quantity_reserved']) ?> <?= e($item['unit'] ?? '') ?></dd></div>
             <div><dt>Remitido</dt><dd><?= e((string) $item['quantity_remitted']) ?> <?= e($item['unit'] ?? '') ?></dd></div>
         </dl>

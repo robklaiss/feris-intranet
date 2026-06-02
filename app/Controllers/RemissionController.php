@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Repositories\ClientRepository;
 use App\Repositories\ContractRepository;
 use App\Repositories\DeliveryNoteRepository;
+use App\Repositories\FinishedGoodsInventoryRepository;
 use App\Repositories\RemissionRepository;
 use App\Services\BalanceService;
 use App\Services\DocumentContextService;
@@ -37,6 +38,10 @@ final class RemissionController extends Controller
 
     public function create(Request $request)
     {
+        if ((string) $request->input('source', '') === 'finished_goods') {
+            return $this->createFromFinishedGoods($request);
+        }
+
         $contractId = (int) $request->input('contract_id', 0);
         $selectedContract = $contractId > 0 ? (new ContractRepository())->findWithItems($contractId) : null;
         $notes = (new DeliveryNoteRepository())->openForSelection();
@@ -76,6 +81,10 @@ final class RemissionController extends Controller
 
     public function store(Request $request)
     {
+        if ((string) $request->input('source', '') === 'finished_goods') {
+            return $this->storeFromFinishedGoods($request);
+        }
+
         $data = $request->only([
             'remission_date',
             'client_id',
@@ -245,5 +254,159 @@ final class RemissionController extends Controller
         $parts = is_array($raw) ? $raw : explode(',', (string) $raw);
         $parts = array_filter(array_map(static fn (mixed $value): string => trim((string) $value), $parts), static fn (string $value): bool => $value !== '');
         return array_values(array_unique(array_map('intval', $parts)));
+    }
+
+    private function createFromFinishedGoods(Request $request)
+    {
+        $selectedIds = $this->parseIds($request->input('finished_goods_inventory_ids', $request->input('finished_goods_ids', '')));
+        $inventoryRepository = new FinishedGoodsInventoryRepository();
+        [$items, $errors, $context] = $inventoryRepository->prepareRemissionItems($selectedIds);
+        $document = $context['document'];
+        $selectedContract = !empty($document['contract_id']) ? (new ContractRepository())->findWithItems((int) $document['contract_id']) : null;
+
+        if ($selectedIds === []) {
+            $errors[] = 'Debe seleccionar inventario terminado disponible.';
+        }
+
+        if ($errors !== []) {
+            return $this->redirectWithMessage('/finished-goods-inventory', implode(' ', $errors), 'error');
+        }
+
+        return $this->render('remissions/form', [
+            'source' => 'finished_goods',
+            'remission' => [
+                'remission_date' => date('Y-m-d'),
+                'client_id' => $document['client_id'] ?? '',
+                'contract_id' => $document['contract_id'] ?? '',
+                'reference_number' => $selectedContract['reference_number'] ?? '',
+                'contract_type' => $selectedContract['contract_type'] ?? '',
+                'tax_id' => $selectedContract['tax_id'] ?? '',
+                'origin_address' => '',
+                'destination_address' => '',
+                'transfer_start_date' => date('Y-m-d'),
+                'transfer_end_date' => date('Y-m-d'),
+                'vehicle_brand' => '',
+                'vehicle_plate' => '',
+                'carrier_name' => '',
+                'carrier_tax_id' => '',
+                'driver_name' => '',
+                'driver_document' => '',
+                'status' => 'draft',
+                'notes' => '',
+                'delivery_note_ids' => [],
+                'finished_goods_inventory_ids' => $selectedIds,
+            ],
+            'clients' => (new ClientRepository())->search(['status' => 'active']),
+            'contracts' => (new ContractRepository())->activeForSelection(),
+            'selectedContract' => $selectedContract,
+            'notesList' => [],
+            'context' => $context,
+            'balances' => $items,
+        ]);
+    }
+
+    private function storeFromFinishedGoods(Request $request)
+    {
+        $data = $request->only([
+            'remission_date',
+            'client_id',
+            'contract_id',
+            'reference_number',
+            'contract_type',
+            'tax_id',
+            'origin_address',
+            'destination_address',
+            'transfer_start_date',
+            'transfer_end_date',
+            'vehicle_brand',
+            'vehicle_plate',
+            'carrier_name',
+            'carrier_tax_id',
+            'driver_name',
+            'driver_document',
+            'notes',
+        ]);
+        $data['status'] = 'draft';
+
+        $ids = $this->parseIds($request->input('finished_goods_inventory_ids', ''));
+        $quantities = $this->parseQuantitiesById($request->all(), 'finished_goods_inventory_id', 'quantity');
+        $inventoryRepository = new FinishedGoodsInventoryRepository();
+        [$items, $errors, $context] = $inventoryRepository->prepareRemissionItems($ids, $quantities);
+
+        if ($ids === []) {
+            $errors[] = 'Debe seleccionar inventario terminado disponible.';
+        }
+
+        if ($items === []) {
+            $errors[] = 'No hay inventario terminado remisionable.';
+        }
+
+        $data['client_id'] = $context['document']['client_id'] ?? $data['client_id'];
+        $data['contract_id'] = $context['document']['contract_id'] ?? $data['contract_id'];
+        if (!empty($data['contract_id'])) {
+            $selectedContract = (new ContractRepository())->findWithItems((int) $data['contract_id']);
+            if ($selectedContract) {
+                $data['reference_number'] = $data['reference_number'] ?: $selectedContract['reference_number'];
+                $data['contract_type'] = $data['contract_type'] ?: $selectedContract['contract_type'];
+                $data['tax_id'] = $data['tax_id'] ?: $selectedContract['tax_id'];
+            }
+        }
+        $data['total_amount'] = $this->sumItems($items);
+
+        if ($errors !== []) {
+            $query = http_build_query([
+                'source' => 'finished_goods',
+                'finished_goods_inventory_ids' => implode(',', $ids),
+            ]);
+            return $this->redirectWithMessage('/remissions/create?' . $query, implode(' ', $errors), 'error');
+        }
+
+        try {
+            $data['remission_number'] = (new NumberingService())->next('remissions');
+            $id = (new RemissionRepository())->create($data, $items, []);
+            (new OperationalAuditService())->logDocumentAction(
+                'remissions',
+                $id,
+                (string) $data['remission_number'],
+                'create_remission_from_finished_goods',
+                null,
+                (string) $data['status'],
+                [
+                    'remission_id' => $id,
+                    'remission_number' => $data['remission_number'],
+                    'contract_id' => $data['contract_id'],
+                    'client_id' => $data['client_id'],
+                    'items' => $items,
+                ]
+            );
+
+            return $this->redirectWithMessage('/remissions/' . $id, 'Remisión creada desde inventario terminado.');
+        } catch (Throwable $exception) {
+            return $this->redirectWithMessage('/remissions/create?source=finished_goods', 'No se pudo crear la remisión: ' . $exception->getMessage(), 'error');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<int, float>
+     */
+    private function parseQuantitiesById(array $payload, string $idField, string $quantityField): array
+    {
+        $ids = $payload[$idField] ?? [];
+        $quantities = $payload[$quantityField] ?? [];
+        if (!is_array($ids) || !is_array($quantities)) {
+            return [];
+        }
+
+        $mapped = [];
+        foreach ($ids as $index => $id) {
+            $inventoryId = (int) $id;
+            if ($inventoryId <= 0) {
+                continue;
+            }
+            $mapped[$inventoryId] = (float) ($quantities[$index] ?? 0);
+        }
+
+        return $mapped;
     }
 }

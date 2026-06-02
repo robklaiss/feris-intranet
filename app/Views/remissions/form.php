@@ -1,14 +1,19 @@
-<?php $selectedNoteIds = $remission['delivery_note_ids'] ?? []; ?>
+<?php
+$selectedNoteIds = $remission['delivery_note_ids'] ?? [];
+$source = $source ?? 'delivery_notes';
+$isFinishedGoods = $source === 'finished_goods';
+?>
 
 <section class="page-head">
     <div>
         <p class="eyebrow">Remisiones</p>
         <h1>Nueva remisión</h1>
-        <p class="muted">Seleccione una o varias notas y el sistema construye los ítems remisionables.</p>
+        <p class="muted"><?= $isFinishedGoods ? 'Seleccione inventario terminado compatible y confirme para consumir disponibilidad.' : 'Seleccione una o varias notas y el sistema construye los ítems remisionables.' ?></p>
     </div>
     <a href="/remissions" class="button button--secondary">Volver</a>
 </section>
 
+<?php if (!$isFinishedGoods): ?>
 <form method="get" action="/remissions/create" class="panel form-stack">
     <div class="form-grid compact">
         <label>
@@ -46,13 +51,31 @@
         <button type="submit" class="button button--secondary">Construir remisión</button>
     </div>
 </form>
+<?php else: ?>
+    <section class="panel">
+        <div class="panel__header">
+            <h2>Origen inventario terminado</h2>
+            <span class="muted">La remisión consumirá stock al confirmarse.</span>
+        </div>
+        <div class="list-stack">
+            <?php foreach (($context['document']['source_finished_goods'] ?? []) as $inventory): ?>
+                <div class="list-item">
+                    <strong><?= e($inventory['internal_code']) ?></strong>
+                    <span><?= e($inventory['item_code']) ?> · <?= e($inventory['size'] ?? '-') ?> · <?= e($inventory['color'] ?? '-') ?> · disponible <?= e((string) ($inventory['real_available'] ?? $inventory['quantity_available'])) ?></span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <form method="post" action="/remissions" class="form-stack" data-calc-totals>
     <?= csrf_field() ?>
+    <input type="hidden" name="source" value="<?= e($source) ?>">
     <input type="hidden" name="contract_id" value="<?= e((string) ($remission['contract_id'] ?? '')) ?>">
     <input type="hidden" name="delivery_note_ids" value="<?= e(implode(',', $selectedNoteIds)) ?>">
+    <input type="hidden" name="finished_goods_inventory_ids" value="<?= e(implode(',', $remission['finished_goods_inventory_ids'] ?? [])) ?>">
     <section class="alert alert--info">
-        La remisión se guarda como borrador. Confirmala para habilitar la facturación placeholder.
+        <?= $isFinishedGoods ? 'La remisión se guarda como borrador. Al confirmarla se consume el inventario terminado seleccionado.' : 'La remisión se guarda como borrador. Confirmala para habilitar la facturación placeholder.' ?>
     </section>
     <section class="panel">
         <div class="form-grid">
@@ -137,15 +160,15 @@
     <section class="panel">
         <div class="panel__header">
             <h2>Items a remitir</h2>
-            <span class="muted">Los ítems se generan desde las notas seleccionadas.</span>
+            <span class="muted"><?= $isFinishedGoods ? 'Los ítems se generan desde inventario terminado disponible.' : 'Los ítems se generan desde las notas seleccionadas.' ?></span>
         </div>
         <div class="table-wrap">
             <table class="table table--form">
                 <thead>
                 <tr>
-                    <th>Nota</th>
+                    <th><?= $isFinishedGoods ? 'Inventario' : 'Nota' ?></th>
                     <th>Producto</th>
-                    <th>Saldo</th>
+                    <th><?= $isFinishedGoods ? 'Disponible' : 'Saldo' ?></th>
                     <th>Cantidad a remitir</th>
                     <th>Precio</th>
                     <th>Total item</th>
@@ -155,22 +178,31 @@
                 <?php foreach ($balances as $balance): ?>
                     <tr>
                         <td>
-                            <?= e($balance['note_number'] ?? '') ?>
-                            <input type="hidden" name="delivery_note_id[]" value="<?= e((string) ($balance['delivery_note_id'] ?? '')) ?>">
-                            <input type="hidden" name="delivery_note_item_id[]" value="<?= e((string) $balance['id']) ?>">
+                            <?= e($isFinishedGoods ? ($balance['internal_code'] ?? '') : ($balance['note_number'] ?? '')) ?>
+                            <?php if ($isFinishedGoods): ?>
+                                <input type="hidden" name="finished_goods_inventory_id[]" value="<?= e((string) ($balance['finished_goods_inventory_id'] ?? '')) ?>">
+                            <?php else: ?>
+                                <input type="hidden" name="delivery_note_id[]" value="<?= e((string) ($balance['delivery_note_id'] ?? '')) ?>">
+                                <input type="hidden" name="delivery_note_item_id[]" value="<?= e((string) $balance['id']) ?>">
+                            <?php endif; ?>
                             <input type="hidden" name="product_name[]" value="<?= e($balance['product_name']) ?>">
                             <input type="hidden" name="unit_measure[]" value="<?= e($balance['unit_measure']) ?>">
                             <input type="hidden" name="unit_price[]" value="<?= e((string) $balance['unit_price']) ?>" data-price>
                         </td>
-                        <td><?= e($balance['product_name']) ?></td>
-                        <td><?= e((string) $balance['remaining_quantity']) ?> <?= e($balance['unit_measure']) ?></td>
-                        <td><input type="number" step="0.0001" name="quantity[]" value="<?= e((string) $balance['suggested_quantity']) ?>" data-quantity></td>
+                        <td>
+                            <?= e($balance['product_name']) ?>
+                            <?php if ($isFinishedGoods): ?>
+                                <small class="muted"><?= e($balance['item_code'] ?? '') ?> · <?= e($balance['size'] ?? '-') ?> · <?= e($balance['color'] ?? '-') ?> · <?= e($balance['label'] ?? '-') ?></small>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= e((string) ($isFinishedGoods ? ($balance['real_available'] ?? 0) : $balance['remaining_quantity'])) ?> <?= e($balance['unit_measure']) ?></td>
+                        <td><input type="number" step="0.0001" name="quantity[]" value="<?= e((string) ($isFinishedGoods ? $balance['quantity'] : $balance['suggested_quantity'])) ?>" data-quantity></td>
                         <td>Gs. <?= e(money($balance['unit_price'])) ?></td>
                         <td>Gs. <span data-line-total>0,00</span></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($balances === []): ?>
-                    <tr><td colspan="6" class="empty">Seleccione notas internas para construir los ítems.</td></tr>
+                    <tr><td colspan="6" class="empty"><?= $isFinishedGoods ? 'Seleccione inventario terminado para construir los ítems.' : 'Seleccione notas internas para construir los ítems.' ?></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

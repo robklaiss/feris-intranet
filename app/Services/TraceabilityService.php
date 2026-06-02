@@ -68,7 +68,24 @@ final class TraceabilityService
     public function remissionTrace(int $remissionId): array
     {
         $statement = Database::connection()->prepare(
-            'SELECT * FROM remission_items WHERE remission_id = :remission_id ORDER BY id'
+            'SELECT
+                remission_items.*,
+                finished_goods_inventory.internal_code AS finished_goods_internal_code,
+                finished_goods_inventory.package_code AS finished_goods_package_code,
+                finished_goods_inventory.location AS finished_goods_location,
+                packaging_orders.packaging_number,
+                quality_control_checks.id AS quality_control_check_id,
+                quality_control_checks.qc_number,
+                production_orders.production_number,
+                contracts.contract_number
+             FROM remission_items
+             LEFT JOIN finished_goods_inventory ON finished_goods_inventory.id = remission_items.finished_goods_inventory_id
+             LEFT JOIN packaging_orders ON packaging_orders.id = remission_items.packaging_order_id
+             LEFT JOIN quality_control_checks ON quality_control_checks.id = packaging_orders.quality_control_check_id
+             LEFT JOIN production_orders ON production_orders.id = remission_items.production_order_id
+             LEFT JOIN contracts ON contracts.id = finished_goods_inventory.contract_id
+             WHERE remission_items.remission_id = :remission_id
+             ORDER BY remission_items.id'
         );
         $statement->execute(['remission_id' => $remissionId]);
         $items = $statement->fetchAll() ?: [];

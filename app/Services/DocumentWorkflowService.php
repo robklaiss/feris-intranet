@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\FinishedGoodsInventoryRepository;
 use App\Support\Database;
 use RuntimeException;
 
@@ -221,27 +222,64 @@ final class DocumentWorkflowService
         }
 
         $config = $this->config($type);
-        $statement = Database::connection()->prepare(
-            sprintf('UPDATE %s SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE id = :id', $config['table'])
-        );
-        $statement->execute([
-            'id' => $id,
-            'status' => $targetStatus,
-        ]);
-
         $number = (string) ($document[$config['number_field']] ?? ('#' . $id));
-        $this->audit->logDocumentAction(
-            $type,
-            $id,
-            $number,
-            $action,
-            $currentStatus,
-            $targetStatus,
-            [
-                'document_number' => $number,
-                'action' => $action,
-            ]
-        );
+        $pdo = Database::connection();
+        $ownsTransaction = !$pdo->inTransaction();
+        if ($ownsTransaction) {
+            $pdo->beginTransaction();
+        }
+
+        try {
+            $statement = $pdo->prepare(
+                sprintf('UPDATE %s SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE id = :id', $config['table'])
+            );
+            $statement->execute([
+                'id' => $id,
+                'status' => $targetStatus,
+            ]);
+
+            $finishedGoods = new FinishedGoodsInventoryRepository();
+            $hasFinishedGoods = $type === 'remissions' && $finishedGoods->hasRemissionConsumption($id);
+            if ($hasFinishedGoods && $action === 'confirm') {
+                $finishedGoods->consumeForRemission($id);
+                $this->audit->logDocumentAction(
+                    'remissions',
+                    $id,
+                    $number,
+                    'confirm_remission_from_finished_goods',
+                    $currentStatus,
+                    $targetStatus,
+                    [
+                        'remission_id' => $id,
+                        'remission_number' => $number,
+                        'status_previous' => $currentStatus,
+                        'status_new' => $targetStatus,
+                    ]
+                );
+            }
+
+            $this->audit->logDocumentAction(
+                $type,
+                $id,
+                $number,
+                $action,
+                $currentStatus,
+                $targetStatus,
+                [
+                    'document_number' => $number,
+                    'action' => $action,
+                ]
+            );
+
+            if ($ownsTransaction) {
+                $pdo->commit();
+            }
+        } catch (\Throwable $exception) {
+            if ($ownsTransaction && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
+        }
 
         $document['status'] = $targetStatus;
 
@@ -284,6 +322,29 @@ final class DocumentWorkflowService
     {
         $status = (string) $document['status'];
         $locks = $this->destructiveLock($type, (int) $document['id']);
+
+        if ($type === 'remissions'
+            && in_array($action, ['cancel', 'reopen'], true)
+            && (new FinishedGoodsInventoryRepository())->hasConsumedRemissionInventory((int) $document['id'])) {
+            $number = (string) ($document['remission_number'] ?? ('#' . (int) $document['id']));
+            $this->audit->logDocumentAction(
+                'remissions',
+                (int) $document['id'],
+                $number,
+                'block_remission_cancel_with_finished_goods_consumption',
+                $status,
+                $targetStatus,
+                [
+                    'remission_id' => (int) $document['id'],
+                    'remission_number' => $number,
+                    'status_previous' => $status,
+                    'status_new' => $targetStatus,
+                    'reason' => 'No hay reversa segura para inventario terminado ya consumido.',
+                ]
+            );
+
+            return 'No se puede anular ni reabrir una remisión confirmada que ya consumió inventario terminado porque no hay reversa segura.';
+        }
 
         return match ($action) {
             'confirm' => $status !== 'draft' ? 'Solo los borradores pueden confirmarse.' : null,

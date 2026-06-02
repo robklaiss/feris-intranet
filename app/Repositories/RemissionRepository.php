@@ -92,7 +92,35 @@ final class RemissionRepository extends BaseRepository
              WHERE remission_source_notes.remission_id = :id',
             ['id' => $id]
         );
-        $remission['items'] = $this->fetchAll('SELECT * FROM remission_items WHERE remission_id = :id ORDER BY id', ['id' => $id]);
+        $remission['items'] = $this->fetchAll(
+            'SELECT
+                remission_items.*,
+                finished_goods_inventory.internal_code AS finished_goods_internal_code,
+                finished_goods_inventory.package_code AS finished_goods_package_code,
+                finished_goods_inventory.location AS finished_goods_location,
+                packaging_orders.packaging_number,
+                production_orders.production_number
+             FROM remission_items
+             LEFT JOIN finished_goods_inventory ON finished_goods_inventory.id = remission_items.finished_goods_inventory_id
+             LEFT JOIN packaging_orders ON packaging_orders.id = remission_items.packaging_order_id
+             LEFT JOIN production_orders ON production_orders.id = remission_items.production_order_id
+             WHERE remission_items.remission_id = :id
+             ORDER BY remission_items.id',
+            ['id' => $id]
+        );
+        $remission['source_finished_goods'] = $this->fetchAll(
+            'SELECT DISTINCT
+                finished_goods_inventory.*,
+                packaging_orders.packaging_number,
+                production_orders.production_number
+             FROM remission_items
+             INNER JOIN finished_goods_inventory ON finished_goods_inventory.id = remission_items.finished_goods_inventory_id
+             LEFT JOIN packaging_orders ON packaging_orders.id = remission_items.packaging_order_id
+             LEFT JOIN production_orders ON production_orders.id = remission_items.production_order_id
+             WHERE remission_items.remission_id = :id
+             ORDER BY finished_goods_inventory.id',
+            ['id' => $id]
+        );
 
         return $remission;
     }
@@ -160,13 +188,31 @@ final class RemissionRepository extends BaseRepository
             foreach ($items as $item) {
                 $this->execute(
                     'INSERT INTO remission_items (
-                        remission_id, delivery_note_item_id, product_name, unit_measure, quantity, unit_price, total_item, updated_at
+                        remission_id, delivery_note_item_id, finished_goods_inventory_id, packaging_order_id,
+                        production_order_id, contract_item_spec_id, item_code, product_type, description,
+                        size, color, label, quantity_available_before, quantity_available_after,
+                        product_name, unit_measure, quantity, unit_price, total_item, updated_at
                     ) VALUES (
-                        :remission_id, :delivery_note_item_id, :product_name, :unit_measure, :quantity, :unit_price, :total_item, CURRENT_TIMESTAMP
+                        :remission_id, :delivery_note_item_id, :finished_goods_inventory_id, :packaging_order_id,
+                        :production_order_id, :contract_item_spec_id, :item_code, :product_type, :description,
+                        :size, :color, :label, :quantity_available_before, :quantity_available_after,
+                        :product_name, :unit_measure, :quantity, :unit_price, :total_item, CURRENT_TIMESTAMP
                     )',
                     [
                         'remission_id' => $remissionId,
-                        'delivery_note_item_id' => $item['delivery_note_item_id'],
+                        'delivery_note_item_id' => $item['delivery_note_item_id'] ?? null,
+                        'finished_goods_inventory_id' => $item['finished_goods_inventory_id'] ?? null,
+                        'packaging_order_id' => $item['packaging_order_id'] ?? null,
+                        'production_order_id' => $item['production_order_id'] ?? null,
+                        'contract_item_spec_id' => $item['contract_item_spec_id'] ?? null,
+                        'item_code' => $item['item_code'] ?? null,
+                        'product_type' => $item['product_type'] ?? null,
+                        'description' => $item['description'] ?? null,
+                        'size' => $item['size'] ?? null,
+                        'color' => $item['color'] ?? null,
+                        'label' => $item['label'] ?? null,
+                        'quantity_available_before' => $item['quantity_available_before'] ?? null,
+                        'quantity_available_after' => $item['quantity_available_after'] ?? null,
                         'product_name' => $item['product_name'],
                         'unit_measure' => $item['unit_measure'],
                         'quantity' => $item['quantity'],

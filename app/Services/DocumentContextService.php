@@ -99,6 +99,7 @@ final class DocumentContextService
     public function invoiceContext(array $remissionIds): array
     {
         $remissions = $this->fetchRemissionsByIds($remissionIds);
+        $confirmedRemissionIds = array_map(static fn (array $remission): int => (int) $remission['id'], $remissions);
         $primary = $remissions[0] ?? null;
 
         return [
@@ -114,7 +115,7 @@ final class DocumentContextService
                 'source_remissions' => $remissions,
             ],
             'items' => $this->normalizeItems(
-                $this->annotateRemissionItems($this->balances->remissionItemBalances($remissionIds), $remissions),
+                $this->annotateRemissionItems($this->balances->remissionItemBalances($confirmedRemissionIds), $remissions),
                 'remission_item_id'
             ),
         ];

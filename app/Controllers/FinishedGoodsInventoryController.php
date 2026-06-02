@@ -14,9 +14,14 @@ final class FinishedGoodsInventoryController extends Controller
         $filters = [
             'q' => trim((string) $request->input('q', '')),
             'status' => trim((string) $request->input('status', '')),
+            'client_id' => trim((string) $request->input('client_id', '')),
+            'contract_id' => trim((string) $request->input('contract_id', '')),
+            'dependency_id' => trim((string) $request->input('dependency_id', '')),
             'item_code' => trim((string) $request->input('item_code', '')),
             'size' => trim((string) $request->input('size', '')),
+            'color' => trim((string) $request->input('color', '')),
             'label' => trim((string) $request->input('label', '')),
+            'location' => trim((string) $request->input('location', '')),
         ];
 
         return $this->render('finished_goods_inventory/index', [
