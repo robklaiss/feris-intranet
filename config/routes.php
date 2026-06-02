@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\ClientController;
 use App\Controllers\ContractController;
+use App\Controllers\CuttingOrderController;
 use App\Controllers\CustomerPurchaseOrderController;
 use App\Controllers\DashboardController;
 use App\Controllers\DeliveryNoteController;
@@ -86,6 +87,15 @@ return static function (Router $router): void {
     $router->post('/production-orders/{id}/close', [ProductionOrderController::class, 'close']);
     $router->get('/production-orders/{id}/stock-checks/create', [StockCheckController::class, 'create']);
     $router->post('/production-orders/{id}/stock-checks', [StockCheckController::class, 'store']);
+    $router->get('/production-orders/{id}/cutting-orders/create', [CuttingOrderController::class, 'create']);
+    $router->post('/production-orders/{id}/cutting-orders', [CuttingOrderController::class, 'store']);
+
+    $router->get('/cutting-orders', [CuttingOrderController::class, 'index']);
+    $router->get('/cutting-orders/{id}', [CuttingOrderController::class, 'show']);
+    $router->post('/cutting-orders/{id}/confirm', [CuttingOrderController::class, 'confirm']);
+    $router->post('/cutting-orders/{id}/complete', [CuttingOrderController::class, 'complete']);
+    $router->post('/cutting-orders/{id}/cancel', [CuttingOrderController::class, 'cancel']);
+    $router->post('/cutting-orders/{id}/close', [CuttingOrderController::class, 'close']);
 
     $router->get('/raw-materials', [RawMaterialInventoryController::class, 'index']);
     $router->get('/raw-materials/create', [RawMaterialInventoryController::class, 'create']);

@@ -12,6 +12,9 @@
         <?php if (can('documents.create') && ($order['status'] ?? '') === 'confirmed'): ?>
             <a class="button" href="/production-orders/<?= e((string) $order['id']) ?>/stock-checks/create">Verificar stock</a>
         <?php endif; ?>
+        <?php if (can('documents.create') && ($order['status'] ?? '') === 'confirmed' && ($order['production_stage'] ?? '') === 'ready_for_cutting' && $activeReservations !== []): ?>
+            <a class="button" href="/production-orders/<?= e((string) $order['id']) ?>/cutting-orders/create">Crear orden de corte</a>
+        <?php endif; ?>
         <?php if (can('documents.transition') && in_array(($order['status'] ?? ''), ['draft', 'confirmed'], true)): ?>
             <form method="post" action="/production-orders/<?= e((string) $order['id']) ?>/cancel" data-confirm="Anular esta orden de producción?"><?= csrf_field() ?><button class="button button--secondary" type="submit">Anular</button></form>
         <?php endif; ?>
@@ -20,6 +23,12 @@
         <?php endif; ?>
     </div>
 </section>
+
+<?php if (($order['status'] ?? '') === 'confirmed' && ($order['production_stage'] ?? '') !== 'ready_for_cutting' && $activeReservations === []): ?>
+    <section class="panel">
+        <p class="text-warning">Esta orden todavía no tiene stock reservado suficiente para crear corte.</p>
+    </section>
+<?php endif; ?>
 
 <section class="grid-two">
     <article class="panel">
@@ -63,6 +72,29 @@
             </table>
         </div>
     </article>
+</section>
+
+<section class="panel">
+    <h2>Órdenes de corte</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Estado</th><th>Fecha planificada</th><th>Responsable</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach ($cuttingOrders as $cuttingOrder): ?>
+                <tr>
+                    <td><strong><?= e($cuttingOrder['cutting_number']) ?></strong></td>
+                    <td><span class="<?= e(status_badge_class($cuttingOrder['status'])) ?>"><?= e(cutting_order_status_label($cuttingOrder['status'])) ?></span></td>
+                    <td><?= e($cuttingOrder['planned_date']) ?></td>
+                    <td><?= e($cuttingOrder['cut_by']) ?></td>
+                    <td><a href="/cutting-orders/<?= e((string) $cuttingOrder['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if ($cuttingOrders === []): ?>
+                <tr><td colspan="5" class="empty">Sin órdenes de corte.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <section class="grid-two">

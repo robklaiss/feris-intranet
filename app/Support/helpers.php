@@ -193,7 +193,8 @@ function status_badge_class(?string $status): string
         'cancelled' => 'badge badge--cancelled',
         'closed' => 'badge badge--closed',
         'pending', 'stock_pending' => 'badge badge--draft',
-        'ready_for_stock_check', 'ready_for_cutting', 'sufficient', 'reserved', 'active' => 'badge badge--confirmed',
+        'ready_for_stock_check', 'ready_for_cutting', 'in_cutting', 'waiting_external_work', 'in_sewing', 'sufficient', 'reserved', 'active', 'cut', 'consumed', 'completed' => 'badge badge--confirmed',
+        'in_progress', 'partial' => 'badge badge--draft',
         'insufficient', 'depleted' => 'badge badge--cancelled',
         'inactive' => 'badge',
         'accepted', 'sent', 'processed', 'requested', 'quoted', 'approved', 'received', 'partially_received' => 'badge badge--confirmed',
@@ -300,6 +301,11 @@ function audit_action_label(string $action): string
         'cancel_goods_receipt' => 'Recepción anulada',
         'create_raw_material_from_receipt' => 'Insumo ingresado desde recepción',
         'update_supplier_purchase_order_receipt_status' => 'Estado de OC proveedor actualizado por recepción',
+        'create_cutting_order' => 'Orden de corte creada',
+        'confirm_cutting_order' => 'Orden de corte confirmada',
+        'complete_cutting_order' => 'Orden de corte completada',
+        'cancel_cutting_order' => 'Orden de corte anulada',
+        'close_cutting_order' => 'Orden de corte cerrada',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -312,7 +318,45 @@ function production_stage_label(?string $stage): string
         'stock_pending' => 'Stock pendiente',
         'ready_for_stock_check' => 'Listo para verificar stock',
         'ready_for_cutting' => 'Listo para corte',
+        'in_cutting' => 'En corte',
+        'waiting_external_work' => 'Pendiente de serigrafía/bordado',
+        'in_sewing' => 'Pendiente de confección',
         default => ucfirst(str_replace('_', ' ', (string) $stage)),
+    };
+}
+
+function cutting_order_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmada',
+        'in_progress' => 'En proceso',
+        'completed' => 'Completada',
+        'cancelled' => 'Anulada',
+        'closed' => 'Cerrada',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function cutting_item_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'pending' => 'Pendiente',
+        'cut' => 'Cortado',
+        'partial' => 'Parcial',
+        'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function cutting_material_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'reserved' => 'Reservado',
+        'consumed' => 'Consumido',
+        'released' => 'Liberado',
+        'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }
 
