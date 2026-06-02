@@ -29,6 +29,11 @@ final class ReportController extends Controller
             'client_id' => (string) $request->input('client_id', ''),
             'contract_number' => trim((string) $request->input('contract_number', '')),
             'identifier_number' => trim((string) $request->input('identifier_number', '')),
+            'q' => trim((string) $request->input('q', '')),
+            'status' => trim((string) $request->input('status', '')),
+            'date_from' => trim((string) $request->input('date_from', '')),
+            'date_to' => trim((string) $request->input('date_to', '')),
+            'available_only' => (string) $request->input('available_only', ''),
         ];
         $audit = Database::connection()->query('SELECT * FROM audit_log ORDER BY created_at DESC, id DESC LIMIT 20')->fetchAll() ?: [];
 
@@ -59,6 +64,11 @@ final class ReportController extends Controller
             'client_id' => (string) $request->input('client_id', ''),
             'contract_number' => trim((string) $request->input('contract_number', '')),
             'identifier_number' => trim((string) $request->input('identifier_number', '')),
+            'q' => trim((string) $request->input('q', '')),
+            'status' => trim((string) $request->input('status', '')),
+            'date_from' => trim((string) $request->input('date_from', '')),
+            'date_to' => trim((string) $request->input('date_to', '')),
+            'available_only' => (string) $request->input('available_only', ''),
         ]);
 
         $report['filters']['client_label'] = $this->clientLabel($service->clients(), (string) ($report['filters']['client_id'] ?? ''));

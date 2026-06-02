@@ -22,6 +22,7 @@ final class FinishedGoodsInventoryController extends Controller
             'color' => trim((string) $request->input('color', '')),
             'label' => trim((string) $request->input('label', '')),
             'location' => trim((string) $request->input('location', '')),
+            'available_only' => trim((string) $request->input('available_only', '')),
         ];
 
         return $this->render('finished_goods_inventory/index', [

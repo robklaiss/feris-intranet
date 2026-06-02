@@ -41,9 +41,22 @@ final class FinishedGoodsInventoryRepository extends BaseRepository
                 OR finished_goods_inventory.description LIKE :q
                 OR finished_goods_inventory.label LIKE :q
                 OR clients.name LIKE :q
+                OR clients.tax_id LIKE :q
                 OR contracts.contract_number LIKE :q
+                OR contracts.reference_number LIKE :q
+                OR client_dependencies.name LIKE :q
                 OR production_orders.production_number LIKE :q
                 OR packaging_orders.packaging_number LIKE :q
+                OR EXISTS (
+                    SELECT 1
+                    FROM remission_items
+                    INNER JOIN remissions ON remissions.id = remission_items.remission_id
+                    WHERE remission_items.finished_goods_inventory_id = finished_goods_inventory.id
+                      AND (
+                        remissions.remission_number LIKE :q
+                        OR remissions.reference_number LIKE :q
+                      )
+                )
             )';
             $params['q'] = '%' . trim((string) $filters['q']) . '%';
         }

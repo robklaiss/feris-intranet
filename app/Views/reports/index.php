@@ -2,7 +2,7 @@
     <div>
         <p class="eyebrow">Seguimiento</p>
         <h1>Reportes</h1>
-        <p class="muted">Primera versión operativa con filtros por cliente, contrato e ID y exportación CSV/PDF.</p>
+        <p class="muted">Reportes comerciales y textiles con filtros globales, estado, fechas y exportación CSV/PDF.</p>
     </div>
 </section>
 
@@ -49,6 +49,29 @@
         <label>
             <span>Número de ID</span>
             <input type="text" name="identifier_number" value="<?= e($filters['identifier_number']) ?>">
+        </label>
+        <label>
+            <span>Búsqueda global</span>
+            <input type="search" name="q" value="<?= e($filters['q'] ?? '') ?>" placeholder="Cliente, RUC, dependencia, OC, producción, ítem, proveedor o remisión">
+        </label>
+        <label>
+            <span>Estado</span>
+            <input type="text" name="status" value="<?= e($filters['status'] ?? '') ?>" placeholder="confirmed, sent, approved...">
+        </label>
+        <label>
+            <span>Desde</span>
+            <input type="date" name="date_from" value="<?= e($filters['date_from'] ?? '') ?>">
+        </label>
+        <label>
+            <span>Hasta</span>
+            <input type="date" name="date_to" value="<?= e($filters['date_to'] ?? '') ?>">
+        </label>
+        <label>
+            <span>Disponibilidad</span>
+            <select name="available_only">
+                <option value="">Todos</option>
+                <option value="1" <?= !empty($filters['available_only']) ? 'selected' : '' ?>>Solo disponible</option>
+            </select>
         </label>
         <div class="form-actions">
             <button type="submit" class="button">Aplicar filtros</button>

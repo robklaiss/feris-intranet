@@ -29,6 +29,13 @@
         <label><span>Color</span><input type="text" name="color" value="<?= e($filters['color'] ?? '') ?>"></label>
         <label><span>Etiqueta</span><input type="text" name="label" value="<?= e($filters['label'] ?? '') ?>"></label>
         <label><span>Ubicación</span><input type="text" name="location" value="<?= e($filters['location'] ?? '') ?>"></label>
+        <label>
+            <span>Disponibilidad</span>
+            <select name="available_only">
+                <option value="">Todos</option>
+                <option value="1" <?= !empty($filters['available_only']) ? 'selected' : '' ?>>Solo disponible</option>
+            </select>
+        </label>
         <button type="submit" class="button">Filtrar</button>
     </form>
 

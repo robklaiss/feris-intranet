@@ -83,7 +83,7 @@ Se crean desde la migración `004_add_operational_readiness.sql`.
 ## Estructura
 
 ```text
-/Users/robinklaiss/Dev/industria-feris-crm
+/Users/robinklaiss/Dev/feris-intranet
   app/
     Controllers/
     Repositories/
@@ -119,27 +119,36 @@ Se crean desde la migración `004_add_operational_readiness.sql`.
 - `004_add_operational_readiness.sql`
 - `005_add_licitaciones_module.sql`
 - `006_expand_audit_operational_tracking.sql`
+- `007_add_client_dependencies_and_dncp.sql` a `018_link_finished_goods_to_remissions.sql` cubren el modulo de produccion textil.
 
 ## Produccion area textiles
 
-La validacion tecnica del modulo de produccion textil esta en [docs/produccion-textil.md](/Users/robinklaiss/Dev/industria-feris-crm/docs/produccion-textil.md).
+La validacion tecnica y documentacion operativa del modulo de produccion textil esta en [docs/produccion-textil.md](/Users/robinklaiss/Dev/feris-intranet/docs/produccion-textil.md).
 
 El documento fija el alcance por fases y deja fuera de alcance, por ahora, SIFEN, `LocalBillingAdapter`, `sifen-minisender-3` y cambios directos en servidor.
+
+Accesos operativos principales:
+
+- Produccion textil: `/production-orders`
+- Inventario de insumos: `/raw-materials`
+- Compras textiles: `/purchase-requisitions`, `/supplier-purchase-orders`, `/goods-receipts`
+- Inventario terminado: `/finished-goods-inventory`
+- Reportes textiles: `/reports?type=textile_production_by_status`
 
 ## Comandos exactos para correr localmente
 
 ### 1. Configurar entorno
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 cp .env.example .env
-sed -i '' 's#^DB_DATABASE=.*#DB_DATABASE=/Users/robinklaiss/Dev/industria-feris-crm/database/data/app.sqlite#' .env
+sed -i '' 's#^DB_DATABASE=.*#DB_DATABASE=/Users/robinklaiss/Dev/feris-intranet/database/data/app.sqlite#' .env
 ```
 
 ### 2. Migrar y cargar demo
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 php bin/migrate.php
 php bin/seed.php
 ```
@@ -147,7 +156,7 @@ php bin/seed.php
 ### 3. Levantar servidor local
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 php -S 127.0.0.1:8080 -t public public/router.php
 ```
 
@@ -160,7 +169,7 @@ http://127.0.0.1:8080/login
 ### 4. Ejecutar pruebas
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 php bin/test.php
 ```
 
@@ -207,7 +216,7 @@ sudo apt install -y nginx php8.3 php8.3-fpm php8.3-sqlite3 php8.3-mbstring php8.
 
 ```bash
 sudo mkdir -p /var/www/industria-feris-crm
-sudo rsync -av /Users/robinklaiss/Dev/industria-feris-crm/ /var/www/industria-feris-crm/
+sudo rsync -av /Users/robinklaiss/Dev/feris-intranet/ /var/www/industria-feris-crm/
 ```
 
 ### 3. Configurar entorno
@@ -240,7 +249,7 @@ sudo -u www-data php bin/seed.php
 
 ### 6. Configurar Nginx
 
-Archivo recomendado: [deploy/nginx/industria-feris-crm.conf.example](/Users/robinklaiss/Dev/industria-feris-crm/deploy/nginx/industria-feris-crm.conf.example)
+Archivo recomendado: [deploy/nginx/industria-feris-crm.conf.example](/Users/robinklaiss/Dev/feris-intranet/deploy/nginx/industria-feris-crm.conf.example)
 
 Copiar a `/etc/nginx/sites-available/industria-feris-crm`:
 
@@ -312,21 +321,21 @@ sudo crontab -e
 ### Backup timestamped sin compresión
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 ./bin/backup_sqlite.sh
 ```
 
 ### Backup timestamped con zip
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 ./bin/backup_sqlite.sh --zip
 ```
 
 ### Backup en ruta custom
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
+cd /Users/robinklaiss/Dev/feris-intranet
 ./bin/backup_sqlite.sh --zip --dest /tmp/industria-feris-backups
 ```
 
@@ -348,15 +357,15 @@ Cron sugerido en EC2:
 ### Restaurar desde directorio
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
-./bin/restore_sqlite.sh /Users/robinklaiss/Dev/industria-feris-crm/storage/backups/20260308_235959
+cd /Users/robinklaiss/Dev/feris-intranet
+./bin/restore_sqlite.sh /Users/robinklaiss/Dev/feris-intranet/storage/backups/20260308_235959
 ```
 
 ### Restaurar desde zip
 
 ```bash
-cd /Users/robinklaiss/Dev/industria-feris-crm
-./bin/restore_sqlite.sh /Users/robinklaiss/Dev/industria-feris-crm/storage/backups/20260308_235959.zip
+cd /Users/robinklaiss/Dev/feris-intranet
+./bin/restore_sqlite.sh /Users/robinklaiss/Dev/feris-intranet/storage/backups/20260308_235959.zip
 ```
 
 ### Restore en EC2

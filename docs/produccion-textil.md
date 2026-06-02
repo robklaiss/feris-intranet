@@ -391,3 +391,98 @@ Implementacion sugerida:
 - Cambios directos en servidor.
 - Busqueda full-text.
 - Excepciones administrativas no auditadas.
+
+## Estado implementado por fases
+
+Fases 2 a 14 implementan el flujo operativo textil sobre las tablas existentes y migraciones `007` a `018`: clientes/dependencias/DNCP, items tecnicos, OC cliente, produccion, stock checks, reservas, compras por faltantes, recepciones, corte, trabajos externos, confeccion, calidad, reproceso, empaquetado, inventario terminado y remisiones desde inventario terminado.
+
+La fase 14 agrega hardening operativo: reportes textiles integrados en `/reports`, filtros globales ampliados, dashboard textil con contadores, prueba E2E del flujo suficiente/insuficiente y documentacion de reglas criticas.
+
+## Como recorrer el flujo completo
+
+Flujo con stock suficiente:
+
+```text
+Contrato confirmed
+-> item tecnico confirmed
+-> OC cliente confirmed
+-> orden de produccion confirmed
+-> stock check sufficient
+-> reserva de stock
+-> corte confirmado y completado
+-> confeccion completada
+-> calidad approved
+-> empaquetado packed
+-> inventario terminado available
+-> remision confirmed desde inventario terminado
+```
+
+Flujo con faltantes:
+
+```text
+Stock check insufficient
+-> pedido de presupuesto
+-> 3 proveedores solicitados
+-> presupuesto aprobado
+-> OC proveedor confirmed
+-> recepcion confirmed
+-> alta de inventario de insumos
+-> nueva verificacion de stock sufficient
+-> reserva y corte
+```
+
+## Reglas criticas de inventario
+
+- Solo producciones `confirmed` pueden verificar, reservar o consumir stock.
+- Un stock check `insufficient` no puede reservar stock.
+- Una produccion no puede crear corte sin reservas activas y etapa `ready_for_cutting`.
+- El corte consume inventario de insumos y marca reservas como `consumed`.
+- Las recepciones de proveedor solo crean inventario por cantidades aceptadas.
+- El empaquetado solo toma cantidades aprobadas por calidad.
+- El inventario terminado solo puede remitirse cuando tiene disponibilidad real.
+- La remision confirmada descuenta `quantity_available` y aumenta `quantity_remitted`.
+
+## Acciones que consumen stock
+
+- Confirmar corte consume reservas de `raw_material_inventory`.
+- Confirmar remision desde inventario terminado consume `finished_goods_inventory`.
+
+## Acciones que solo reservan stock
+
+- Reservar una verificacion de stock aumenta `raw_material_inventory.quantity_reserved`.
+- Crear empaquetado en borrador reserva saldo aprobado de calidad para evitar doble empaquetado.
+
+## Acciones que bloquean cancelacion o reapertura
+
+- No se cancela produccion con consumo irreversible salvo reglas explicitas de reversa.
+- No se cancela confeccion con avances registrados.
+- No se cancela empaquetado que ya genero inventario terminado.
+- No se cancela remision confirmada que ya consumio inventario terminado.
+- Documentos comerciales siguen bloqueando anulacion/reapertura cuando alimentaron documentos posteriores.
+
+## Backup y restore
+
+Los scripts SQLite existentes respaldan y restauran el archivo completo de base de datos, por lo que incluyen naturalmente las tablas textiles:
+
+- inventario de insumos;
+- reservas;
+- compras;
+- recepciones;
+- corte;
+- trabajos externos;
+- confeccion;
+- calidad y reproceso;
+- empaquetado;
+- inventario terminado;
+- remisiones vinculadas a inventario terminado.
+
+No se requieren cambios en `bin/backup_sqlite.sh` ni `bin/restore_sqlite.sh` mientras el sistema use una unica base SQLite configurada en `DB_DATABASE`.
+
+## Pendientes fuera de alcance
+
+- SIFEN.
+- Facturacion electronica real.
+- Reversas avanzadas de inventario.
+- Emails reales a proveedores.
+- Adjuntos reales si no estan completos.
+- Automatizaciones futuras.

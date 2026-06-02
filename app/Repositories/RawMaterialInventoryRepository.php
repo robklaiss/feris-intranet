@@ -32,6 +32,7 @@ final class RawMaterialInventoryRepository extends BaseRepository
                 OR raw_material_inventory.material_type LIKE :q
                 OR raw_material_inventory.description LIKE :q
                 OR raw_material_inventory.supplier_name LIKE :q
+                OR raw_material_inventory.supplier_ruc LIKE :q
                 OR raw_material_inventory.lot_number LIKE :q
                 OR goods_receipts.receipt_number LIKE :q
                 OR raw_material_inventory.related_item_code LIKE :q

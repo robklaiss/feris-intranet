@@ -15,6 +15,21 @@
     <?php endforeach; ?>
 </section>
 
+<section class="panel">
+    <div class="panel__header">
+        <h2>Producción textil</h2>
+        <a href="/reports?type=textile_production_by_status" class="link-arrow">Ver reportes</a>
+    </div>
+    <div class="stats-grid">
+        <?php foreach (($textileStats ?? []) as $stat): ?>
+            <a href="<?= e($stat['href']) ?>" class="stat-card">
+                <span><?= e($stat['label']) ?></span>
+                <strong><?= e((string) $stat['value']) ?></strong>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+
 <section class="grid-two">
     <article class="panel">
         <div class="panel__header">

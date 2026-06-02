@@ -27,6 +27,7 @@ final class ProductionOrderRepository extends BaseRepository
              LEFT JOIN clients ON clients.id = production_orders.client_id
              LEFT JOIN contracts ON contracts.id = production_orders.contract_id
              LEFT JOIN client_dependencies ON client_dependencies.id = production_orders.dependency_id
+             LEFT JOIN contract_dncp_data ON contract_dncp_data.contract_id = production_orders.contract_id
              WHERE 1=1';
         $params = [];
 
@@ -35,8 +36,26 @@ final class ProductionOrderRepository extends BaseRepository
                 production_orders.production_number LIKE :q
                 OR customer_purchase_orders.po_number LIKE :q
                 OR clients.name LIKE :q
+                OR clients.tax_id LIKE :q
                 OR contracts.contract_number LIKE :q
+                OR contracts.reference_number LIKE :q
                 OR client_dependencies.name LIKE :q
+                OR contract_dncp_data.tender_id LIKE :q
+                OR contract_dncp_data.customer_purchase_order_number LIKE :q
+                OR EXISTS (
+                    SELECT 1
+                    FROM production_order_items
+                    LEFT JOIN contract_item_specs ON contract_item_specs.id = production_order_items.contract_item_spec_id
+                    WHERE production_order_items.production_order_id = production_orders.id
+                      AND (
+                        production_order_items.item_code LIKE :q
+                        OR production_order_items.product_type LIKE :q
+                        OR production_order_items.description LIKE :q
+                        OR production_order_items.size LIKE :q
+                        OR production_order_items.color LIKE :q
+                        OR contract_item_specs.label LIKE :q
+                      )
+                )
             )';
             $params['q'] = '%' . trim((string) $filters['q']) . '%';
         }
