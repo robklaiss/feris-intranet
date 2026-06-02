@@ -33,6 +33,13 @@
             <div><dt>RUC proveedor</dt><dd><?= e($material['supplier_ruc']) ?></dd></div>
             <div><dt>Lote</dt><dd><?= e($material['lot_number']) ?></dd></div>
             <div><dt>Ubicación</dt><dd><?= e($material['location']) ?></dd></div>
+            <div><dt>Recepción origen</dt><dd>
+                <?php if (!empty($material['source_goods_receipt_id'])): ?>
+                    <a href="/goods-receipts/<?= e((string) $material['source_goods_receipt_id']) ?>"><?= e($material['source_receipt_number']) ?></a>
+                <?php else: ?>
+                    Manual
+                <?php endif; ?>
+            </dd></div>
             <div><dt>Observaciones</dt><dd><?= nl2br(e($material['notes'])) ?></dd></div>
         </dl>
     </article>

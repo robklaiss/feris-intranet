@@ -306,9 +306,50 @@ Criterios go/no-go:
 - anular una orden de produccion libera reservas activas;
 - la fase no genera compras, presupuestos, corte ni consumos reales.
 
-### Fase 6 en adelante
+### Fase 6: compras por faltantes
 
-Implementar compras, recepcion, corte, externo, confeccion, calidad, empaque, inventario terminado y remision desde inventario en pasos separados.
+Objetivo:
+
+- generar pedidos de presupuesto desde faltantes de stock;
+- invitar proveedores;
+- registrar y aprobar presupuestos;
+- emitir OC proveedor con evidencia ISO 9001.
+
+Tablas candidatas:
+
+- `suppliers`
+- `purchase_requisitions`
+- `supplier_quote_requests`
+- `supplier_quotes`
+- `supplier_purchase_orders`
+
+### Fase 7: recepcion e ingreso de insumos
+
+Objetivo:
+
+- recibir insumos desde OC proveedor confirmada/enviada;
+- registrar recepciones parciales o totales;
+- codificar internamente insumos aceptados;
+- ingresar aceptados a `raw_material_inventory`;
+- actualizar estado de OC proveedor a `partially_received` o `received`.
+
+Tablas candidatas:
+
+- `goods_receipts`
+- `goods_receipt_items`
+- `raw_material_inventory.source_goods_receipt_item_id`
+
+Criterio de inventario:
+
+- cada item aceptado de una recepcion confirmada crea un nuevo registro de `raw_material_inventory` con su propio `internal_code` y lote opcional;
+- no se acumula automaticamente con registros existentes, porque la trazabilidad por entrega/lote es prioritaria;
+- `internal_code` se mantiene unico en inventario;
+- cantidades rechazadas no ingresan a inventario;
+- la recepcion no reserva stock automaticamente, solo deja cantidad disponible para futuras verificaciones.
+
+### Fase 8 en adelante
+
+Implementar corte, externo, confeccion, calidad, empaque, inventario terminado y remision desde inventario en pasos separados.
 
 Cada fase debe incluir migracion, repositorio, servicio de reglas, vistas, pruebas y verificacion de backup/restore.
 

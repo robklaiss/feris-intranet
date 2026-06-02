@@ -7,6 +7,9 @@
     </div>
     <div class="page-actions">
         <a href="/supplier-purchase-orders" class="button button--secondary">Volver</a>
+        <?php if (can('documents.create') && in_array(($order['status'] ?? ''), ['confirmed', 'sent', 'partially_received'], true) && ($pendingReceiptItems ?? []) !== []): ?>
+            <a href="/supplier-purchase-orders/<?= e((string) $order['id']) ?>/goods-receipts/create" class="button">Registrar recepción</a>
+        <?php endif; ?>
         <?php if (can('documents.transition') && ($order['status'] ?? '') === 'draft'): ?>
             <form method="post" action="/supplier-purchase-orders/<?= e((string) $order['id']) ?>/confirm"><?= csrf_field() ?><button type="submit" class="button">Confirmar</button></form>
         <?php endif; ?>
@@ -48,6 +51,46 @@
         <div><dt>Requisitos de calidad</dt><dd><?= nl2br(e($order['quality_requirements'] ?? '-')) ?></dd></div>
         <div><dt>Observaciones</dt><dd><?= nl2br(e($order['notes'] ?? '-')) ?></dd></div>
     </dl>
+</section>
+
+<section class="panel">
+    <h2>Recepciones</h2>
+    <div class="summary-row">
+        <?php $receiptStatus = (($pendingReceiptItems ?? []) === [] && in_array(($order['status'] ?? ''), ['received', 'closed'], true)) ? 'recibido' : ((($receipts ?? []) === []) ? 'pendiente' : 'parcial'); ?>
+        <span>Estado de recepción: <strong><?= e($receiptStatus) ?></strong></span>
+        <span>Ítems con saldo pendiente: <?= e((string) count($pendingReceiptItems ?? [])) ?></span>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Recepción</th>
+                <th>Fecha</th>
+                <th>Remito</th>
+                <th>Aceptado</th>
+                <th>Rechazado</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach (($receipts ?? []) as $receipt): ?>
+                <tr>
+                    <td><strong><?= e($receipt['receipt_number']) ?></strong></td>
+                    <td><?= e(format_datetime($receipt['received_at'] ?? null)) ?></td>
+                    <td><?= e($receipt['delivery_note_number'] ?? '-') ?></td>
+                    <td><?= e((string) ($receipt['total_accepted'] ?? 0)) ?></td>
+                    <td><?= e((string) ($receipt['total_rejected'] ?? 0)) ?></td>
+                    <td><span class="<?= e(status_badge_class($receipt['status'])) ?>"><?= e(goods_receipt_status_label($receipt['status'])) ?></span></td>
+                    <td class="actions"><a href="/goods-receipts/<?= e((string) $receipt['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($receipts ?? []) === []): ?>
+                <tr><td colspan="7" class="empty">Sin recepciones registradas.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <section class="panel">

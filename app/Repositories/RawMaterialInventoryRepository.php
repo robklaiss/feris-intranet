@@ -15,31 +15,39 @@ final class RawMaterialInventoryRepository extends BaseRepository
      */
     public function search(array $filters = []): array
     {
-        $sql = 'SELECT *, (quantity_available - quantity_reserved) AS available_to_reserve
+        $sql = 'SELECT
+                    raw_material_inventory.*,
+                    (quantity_available - quantity_reserved) AS available_to_reserve,
+                    goods_receipts.id AS source_goods_receipt_id,
+                    goods_receipts.receipt_number AS source_receipt_number
                 FROM raw_material_inventory
+                LEFT JOIN goods_receipt_items ON goods_receipt_items.id = raw_material_inventory.source_goods_receipt_item_id
+                LEFT JOIN goods_receipts ON goods_receipts.id = goods_receipt_items.goods_receipt_id
                 WHERE 1=1';
         $params = [];
 
         if (!empty($filters['q'])) {
             $sql .= ' AND (
-                internal_code LIKE :q
-                OR material_type LIKE :q
-                OR description LIKE :q
-                OR supplier_name LIKE :q
-                OR related_item_code LIKE :q
-                OR related_product_type LIKE :q
+                raw_material_inventory.internal_code LIKE :q
+                OR raw_material_inventory.material_type LIKE :q
+                OR raw_material_inventory.description LIKE :q
+                OR raw_material_inventory.supplier_name LIKE :q
+                OR raw_material_inventory.lot_number LIKE :q
+                OR goods_receipts.receipt_number LIKE :q
+                OR raw_material_inventory.related_item_code LIKE :q
+                OR raw_material_inventory.related_product_type LIKE :q
             )';
             $params['q'] = '%' . trim((string) $filters['q']) . '%';
         }
 
         foreach (['status', 'material_type', 'related_item_code', 'related_product_type'] as $field) {
             if (!empty($filters[$field])) {
-                $sql .= " AND {$field} = :{$field}";
+                $sql .= " AND raw_material_inventory.{$field} = :{$field}";
                 $params[$field] = trim((string) $filters[$field]);
             }
         }
 
-        $sql .= ' ORDER BY status = "active" DESC, material_type, internal_code';
+        $sql .= ' ORDER BY raw_material_inventory.status = "active" DESC, raw_material_inventory.material_type, raw_material_inventory.internal_code';
 
         return $this->fetchAll($sql, $params);
     }
@@ -50,9 +58,15 @@ final class RawMaterialInventoryRepository extends BaseRepository
     public function find(int $id): ?array
     {
         return $this->fetchOne(
-            'SELECT *, (quantity_available - quantity_reserved) AS available_to_reserve
+            'SELECT
+                raw_material_inventory.*,
+                (quantity_available - quantity_reserved) AS available_to_reserve,
+                goods_receipts.id AS source_goods_receipt_id,
+                goods_receipts.receipt_number AS source_receipt_number
              FROM raw_material_inventory
-             WHERE id = :id',
+             LEFT JOIN goods_receipt_items ON goods_receipt_items.id = raw_material_inventory.source_goods_receipt_item_id
+             LEFT JOIN goods_receipts ON goods_receipts.id = goods_receipt_items.goods_receipt_id
+             WHERE raw_material_inventory.id = :id',
             ['id' => $id]
         );
     }
@@ -68,11 +82,11 @@ final class RawMaterialInventoryRepository extends BaseRepository
             'INSERT INTO raw_material_inventory (
                 internal_code, material_type, description, unit, quantity_available, quantity_reserved,
                 minimum_stock, supplier_name, supplier_ruc, lot_number, location, cost,
-                related_item_code, related_product_type, status, notes, created_by, updated_at
+                related_item_code, related_product_type, source_goods_receipt_item_id, status, notes, created_by, updated_at
             ) VALUES (
                 :internal_code, :material_type, :description, :unit, :quantity_available, :quantity_reserved,
                 :minimum_stock, :supplier_name, :supplier_ruc, :lot_number, :location, :cost,
-                :related_item_code, :related_product_type, :status, :notes, :created_by, CURRENT_TIMESTAMP
+                :related_item_code, :related_product_type, :source_goods_receipt_item_id, :status, :notes, :created_by, CURRENT_TIMESTAMP
             )',
             $data + ['created_by' => Auth::id()]
         );
@@ -90,7 +104,9 @@ final class RawMaterialInventoryRepository extends BaseRepository
             throw new InvalidArgumentException('Insumo no encontrado.');
         }
 
-        $data = $this->normalize($data, (float) $existing['quantity_reserved']);
+        $data = $this->normalize($data + [
+            'source_goods_receipt_item_id' => $existing['source_goods_receipt_item_id'] ?? null,
+        ], (float) $existing['quantity_reserved']);
 
         $this->execute(
             'UPDATE raw_material_inventory SET
@@ -108,6 +124,7 @@ final class RawMaterialInventoryRepository extends BaseRepository
                 cost = :cost,
                 related_item_code = :related_item_code,
                 related_product_type = :related_product_type,
+                source_goods_receipt_item_id = :source_goods_receipt_item_id,
                 status = :status,
                 notes = :notes,
                 updated_at = CURRENT_TIMESTAMP
@@ -168,6 +185,7 @@ final class RawMaterialInventoryRepository extends BaseRepository
             'cost' => trim((string) ($data['cost'] ?? '')) === '' ? null : (float) $data['cost'],
             'related_item_code' => $this->nullable($data['related_item_code'] ?? null),
             'related_product_type' => $this->nullable($data['related_product_type'] ?? null),
+            'source_goods_receipt_item_id' => trim((string) ($data['source_goods_receipt_item_id'] ?? '')) === '' ? null : (int) $data['source_goods_receipt_item_id'],
             'status' => trim((string) ($data['status'] ?? 'active')) ?: 'active',
             'notes' => $this->nullable($data['notes'] ?? null),
         ];

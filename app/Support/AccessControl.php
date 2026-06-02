@@ -63,6 +63,10 @@ final class AccessControl
             return 'documents.transition';
         }
 
+        if (preg_match('#^/goods-receipts/\d+/(confirm|cancel)$#', $path)) {
+            return 'documents.transition';
+        }
+
         if (preg_match('#^/(contracts|purchase-orders|delivery-notes|remissions|invoices)/\d+/export/csv$#', $path)) {
             return 'documents.export';
         }
@@ -119,6 +123,10 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/supplier-purchase-orders/\d+/goods-receipts$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
         if ($path === '/licitaciones' && $method === 'POST') {
             return 'documents.create';
         }
@@ -152,6 +160,10 @@ final class AccessControl
         }
 
         if (preg_match('#^/supplier-purchase-orders/from-quote/\d+/create$#', $path)) {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/supplier-purchase-orders/\d+/goods-receipts/create$#', $path)) {
             return 'documents.create';
         }
 
@@ -203,7 +215,7 @@ final class AccessControl
             return 'documents.view';
         }
 
-        if (preg_match('#^/(suppliers|purchase-requisitions|supplier-purchase-orders)(/\d+)?$#', $path)) {
+        if (preg_match('#^/(suppliers|purchase-requisitions|supplier-purchase-orders|goods-receipts)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 

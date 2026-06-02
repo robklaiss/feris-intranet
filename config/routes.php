@@ -9,6 +9,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\DeliveryNoteController;
 use App\Controllers\DocumentFlowController;
 use App\Controllers\DocumentOperationController;
+use App\Controllers\GoodsReceiptController;
 use App\Controllers\InvoiceController;
 use App\Controllers\LicitacionController;
 use App\Controllers\AuthController;
@@ -117,9 +118,16 @@ return static function (Router $router): void {
     $router->get('/supplier-purchase-orders/from-quote/{quoteId}/create', [SupplierPurchaseOrderController::class, 'createFromQuote']);
     $router->post('/supplier-purchase-orders/from-quote/{quoteId}', [SupplierPurchaseOrderController::class, 'storeFromQuote']);
     $router->get('/supplier-purchase-orders/{id}', [SupplierPurchaseOrderController::class, 'show']);
+    $router->get('/supplier-purchase-orders/{id}/goods-receipts/create', [GoodsReceiptController::class, 'createFromSupplierPurchaseOrder']);
+    $router->post('/supplier-purchase-orders/{id}/goods-receipts', [GoodsReceiptController::class, 'storeFromSupplierPurchaseOrder']);
     $router->post('/supplier-purchase-orders/{id}/confirm', [SupplierPurchaseOrderController::class, 'confirm']);
     $router->post('/supplier-purchase-orders/{id}/cancel', [SupplierPurchaseOrderController::class, 'cancel']);
     $router->post('/supplier-purchase-orders/{id}/close', [SupplierPurchaseOrderController::class, 'close']);
+
+    $router->get('/goods-receipts', [GoodsReceiptController::class, 'index']);
+    $router->get('/goods-receipts/{id}', [GoodsReceiptController::class, 'show']);
+    $router->post('/goods-receipts/{id}/confirm', [GoodsReceiptController::class, 'confirm']);
+    $router->post('/goods-receipts/{id}/cancel', [GoodsReceiptController::class, 'cancel']);
 
     $router->get('/delivery-notes', [DeliveryNoteController::class, 'index']);
     $router->get('/delivery-notes/create', [DeliveryNoteController::class, 'create']);

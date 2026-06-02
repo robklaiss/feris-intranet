@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Repositories\GoodsReceiptRepository;
 use App\Repositories\SupplierPurchaseOrderRepository;
 use App\Repositories\SupplierQuoteRepository;
 use App\Support\Request;
@@ -66,7 +67,11 @@ final class SupplierPurchaseOrderController extends Controller
             return $this->redirectWithMessage('/supplier-purchase-orders', 'Orden de compra proveedor no encontrada.', 'error');
         }
 
-        return $this->render('supplier_purchase_orders/show', ['order' => $order]);
+        return $this->render('supplier_purchase_orders/show', [
+            'order' => $order,
+            'receipts' => (new GoodsReceiptRepository())->bySupplierPurchaseOrder((int) $id),
+            'pendingReceiptItems' => (new GoodsReceiptRepository())->pendingItemsForSupplierPurchaseOrder((int) $id),
+        ]);
     }
 
     public function confirm(Request $request, string $id)

@@ -294,6 +294,12 @@ function audit_action_label(string $action): string
         'confirm_supplier_purchase_order' => 'OC proveedor confirmada',
         'cancel_supplier_purchase_order' => 'OC proveedor anulada',
         'close_supplier_purchase_order' => 'OC proveedor cerrada',
+        'create_goods_receipt' => 'Recepción creada',
+        'update_goods_receipt' => 'Recepción actualizada',
+        'confirm_goods_receipt' => 'Recepción confirmada',
+        'cancel_goods_receipt' => 'Recepción anulada',
+        'create_raw_material_from_receipt' => 'Insumo ingresado desde recepción',
+        'update_supplier_purchase_order_receipt_status' => 'Estado de OC proveedor actualizado por recepción',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -367,6 +373,27 @@ function supplier_purchase_order_status_label(?string $status): string
         'received' => 'Recibida',
         'cancelled' => 'Anulada',
         'closed' => 'Cerrada',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function goods_receipt_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmada',
+        'cancelled' => 'Anulada',
+        'closed' => 'Cerrada',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function goods_receipt_quality_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'pending' => 'Pendiente',
+        'accepted' => 'Aceptado',
+        'rejected' => 'Rechazado',
         default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }

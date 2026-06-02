@@ -13,7 +13,7 @@
     <div class="form-grid compact">
         <label>
             <span>Buscar</span>
-            <input type="search" name="q" value="<?= e($filters['q'] ?? '') ?>" placeholder="Código, tipo, proveedor o relación">
+            <input type="search" name="q" value="<?= e($filters['q'] ?? '') ?>" placeholder="Código, lote, proveedor, recepción o relación">
         </label>
         <label>
             <span>Estado</span>
@@ -45,6 +45,8 @@
                 <th>Disponible</th>
                 <th>Reservado</th>
                 <th>Libre</th>
+                <th>Proveedor / lote</th>
+                <th>Recepción</th>
                 <th>Relación</th>
                 <th>Estado</th>
                 <th></th>
@@ -59,6 +61,14 @@
                     <td><?= e((string) $material['quantity_available']) ?> <?= e($material['unit']) ?></td>
                     <td><?= e((string) $material['quantity_reserved']) ?></td>
                     <td><?= e((string) $material['available_to_reserve']) ?></td>
+                    <td><?= e(trim((string) ($material['supplier_name'] ?? '') . ' ' . (string) ($material['lot_number'] ?? ''))) ?></td>
+                    <td>
+                        <?php if (!empty($material['source_goods_receipt_id'])): ?>
+                            <a href="/goods-receipts/<?= e((string) $material['source_goods_receipt_id']) ?>"><?= e($material['source_receipt_number']) ?></a>
+                        <?php else: ?>
+                            <span class="muted">Manual</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= e(trim((string) ($material['related_item_code'] ?? '') . ' ' . (string) ($material['related_product_type'] ?? ''))) ?></td>
                     <td><span class="<?= e(status_badge_class($material['status'])) ?>"><?= e($material['status']) ?></span></td>
                     <td class="actions">
@@ -70,7 +80,7 @@
                 </tr>
             <?php endforeach; ?>
             <?php if ($materials === []): ?>
-                <tr><td colspan="9" class="empty">No hay insumos cargados.</td></tr>
+                <tr><td colspan="11" class="empty">No hay insumos cargados.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
