@@ -13,6 +13,11 @@
         <?php if (can('documents.transition') && in_array(($check['status'] ?? ''), ['draft', 'sufficient', 'insufficient', 'reserved'], true)): ?>
             <form method="post" action="/stock-checks/<?= e((string) $check['id']) ?>/cancel" data-confirm="Anular esta verificación y liberar reservas activas?"><?= csrf_field() ?><button class="button button--secondary" type="submit">Anular</button></form>
         <?php endif; ?>
+        <?php if (!empty($purchaseRequisition)): ?>
+            <a href="/purchase-requisitions/<?= e((string) $purchaseRequisition['id']) ?>" class="button">Ver pedido de presupuesto</a>
+        <?php elseif (can('documents.create') && ($check['status'] ?? '') === 'insufficient'): ?>
+            <a href="/stock-checks/<?= e((string) $check['id']) ?>/purchase-requisitions/create" class="button">Generar pedido de presupuesto</a>
+        <?php endif; ?>
     </div>
 </section>
 

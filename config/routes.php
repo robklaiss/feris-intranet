@@ -14,11 +14,15 @@ use App\Controllers\LicitacionController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductionOrderController;
 use App\Controllers\PurchaseOrderController;
+use App\Controllers\PurchaseRequisitionController;
 use App\Controllers\RawMaterialInventoryController;
 use App\Controllers\RemissionController;
 use App\Controllers\ReportController;
 use App\Controllers\SettingsController;
 use App\Controllers\StockCheckController;
+use App\Controllers\SupplierController;
+use App\Controllers\SupplierPurchaseOrderController;
+use App\Controllers\SupplierQuoteController;
 use App\Support\Router;
 
 return static function (Router $router): void {
@@ -89,9 +93,33 @@ return static function (Router $router): void {
     $router->get('/raw-materials/{id}/edit', [RawMaterialInventoryController::class, 'edit']);
     $router->post('/raw-materials/{id}/update', [RawMaterialInventoryController::class, 'update']);
 
+    $router->get('/suppliers', [SupplierController::class, 'index']);
+    $router->get('/suppliers/create', [SupplierController::class, 'create']);
+    $router->post('/suppliers', [SupplierController::class, 'store']);
+    $router->get('/suppliers/{id}', [SupplierController::class, 'show']);
+    $router->get('/suppliers/{id}/edit', [SupplierController::class, 'edit']);
+    $router->post('/suppliers/{id}/update', [SupplierController::class, 'update']);
+
     $router->get('/stock-checks/{id}', [StockCheckController::class, 'show']);
     $router->post('/stock-checks/{id}/reserve', [StockCheckController::class, 'reserve']);
     $router->post('/stock-checks/{id}/cancel', [StockCheckController::class, 'cancel']);
+    $router->get('/stock-checks/{id}/purchase-requisitions/create', [PurchaseRequisitionController::class, 'createFromStockCheck']);
+    $router->post('/stock-checks/{id}/purchase-requisitions', [PurchaseRequisitionController::class, 'storeFromStockCheck']);
+
+    $router->get('/purchase-requisitions', [PurchaseRequisitionController::class, 'index']);
+    $router->get('/purchase-requisitions/{id}', [PurchaseRequisitionController::class, 'show']);
+    $router->post('/purchase-requisitions/{id}/suppliers', [PurchaseRequisitionController::class, 'addSuppliers']);
+    $router->get('/purchase-requisitions/{id}/suppliers/{supplierId}/quotes/create', [SupplierQuoteController::class, 'create']);
+    $router->post('/purchase-requisitions/{id}/suppliers/{supplierId}/quotes', [SupplierQuoteController::class, 'store']);
+    $router->post('/supplier-quotes/{id}/approve', [SupplierQuoteController::class, 'approve']);
+
+    $router->get('/supplier-purchase-orders', [SupplierPurchaseOrderController::class, 'index']);
+    $router->get('/supplier-purchase-orders/from-quote/{quoteId}/create', [SupplierPurchaseOrderController::class, 'createFromQuote']);
+    $router->post('/supplier-purchase-orders/from-quote/{quoteId}', [SupplierPurchaseOrderController::class, 'storeFromQuote']);
+    $router->get('/supplier-purchase-orders/{id}', [SupplierPurchaseOrderController::class, 'show']);
+    $router->post('/supplier-purchase-orders/{id}/confirm', [SupplierPurchaseOrderController::class, 'confirm']);
+    $router->post('/supplier-purchase-orders/{id}/cancel', [SupplierPurchaseOrderController::class, 'cancel']);
+    $router->post('/supplier-purchase-orders/{id}/close', [SupplierPurchaseOrderController::class, 'close']);
 
     $router->get('/delivery-notes', [DeliveryNoteController::class, 'index']);
     $router->get('/delivery-notes/create', [DeliveryNoteController::class, 'create']);

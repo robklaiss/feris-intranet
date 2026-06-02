@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\ProductionOrderRepository;
+use App\Repositories\PurchaseRequisitionRepository;
 use App\Repositories\RawMaterialInventoryRepository;
 use App\Repositories\StockCheckRepository;
 use App\Services\OperationalAuditService;
@@ -53,7 +54,10 @@ final class StockCheckController extends Controller
             return $this->redirectWithMessage('/production-orders', 'Verificación de stock no encontrada.', 'error');
         }
 
-        return $this->render('stock_checks/show', ['check' => $check]);
+        return $this->render('stock_checks/show', [
+            'check' => $check,
+            'purchaseRequisition' => (new PurchaseRequisitionRepository())->findByStockCheck((int) $id),
+        ]);
     }
 
     public function reserve(Request $request, string $id)

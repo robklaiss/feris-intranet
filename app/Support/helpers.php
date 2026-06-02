@@ -196,7 +196,7 @@ function status_badge_class(?string $status): string
         'ready_for_stock_check', 'ready_for_cutting', 'sufficient', 'reserved', 'active' => 'badge badge--confirmed',
         'insufficient', 'depleted' => 'badge badge--cancelled',
         'inactive' => 'badge',
-        'accepted', 'sent', 'processed' => 'badge badge--confirmed',
+        'accepted', 'sent', 'processed', 'requested', 'quoted', 'approved', 'received', 'partially_received' => 'badge badge--confirmed',
         'error', 'rejected' => 'badge badge--cancelled',
         default => 'badge',
     };
@@ -284,6 +284,16 @@ function audit_action_label(string $action): string
         'create_stock_check' => 'Verificación de stock creada',
         'reserve_stock_check' => 'Stock reservado',
         'cancel_stock_check' => 'Verificación de stock anulada',
+        'create_supplier' => 'Proveedor creado',
+        'update_supplier' => 'Proveedor actualizado',
+        'create_purchase_requisition' => 'Pedido de presupuesto creado',
+        'add_supplier_quote_request' => 'Solicitud a proveedor registrada',
+        'register_supplier_quote' => 'Presupuesto proveedor registrado',
+        'approve_supplier_quote' => 'Presupuesto proveedor aprobado',
+        'create_supplier_purchase_order' => 'OC proveedor creada',
+        'confirm_supplier_purchase_order' => 'OC proveedor confirmada',
+        'cancel_supplier_purchase_order' => 'OC proveedor anulada',
+        'close_supplier_purchase_order' => 'OC proveedor cerrada',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -309,6 +319,54 @@ function stock_check_status_label(?string $status): string
         'reserved' => 'Reservado',
         'cancelled' => 'Anulado',
         'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function supplier_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'active' => 'Activo',
+        'inactive' => 'Inactivo',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function purchase_requisition_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'requested' => 'Solicitado',
+        'quoted' => 'Con presupuestos',
+        'approved' => 'Aprobado',
+        'cancelled' => 'Anulado',
+        'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function supplier_quote_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'received' => 'Recibido',
+        'approved' => 'Aprobado',
+        'rejected' => 'Rechazado',
+        'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function supplier_purchase_order_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmada',
+        'sent' => 'Enviada',
+        'partially_received' => 'Recepción parcial',
+        'received' => 'Recibida',
+        'cancelled' => 'Anulada',
+        'closed' => 'Cerrada',
         default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }
