@@ -193,7 +193,9 @@ function status_badge_class(?string $status): string
         'cancelled' => 'badge badge--cancelled',
         'closed' => 'badge badge--closed',
         'pending', 'stock_pending' => 'badge badge--draft',
-        'ready_for_stock_check' => 'badge badge--confirmed',
+        'ready_for_stock_check', 'ready_for_cutting', 'sufficient', 'reserved', 'active' => 'badge badge--confirmed',
+        'insufficient', 'depleted' => 'badge badge--cancelled',
+        'inactive' => 'badge',
         'accepted', 'sent', 'processed' => 'badge badge--confirmed',
         'error', 'rejected' => 'badge badge--cancelled',
         default => 'badge',
@@ -279,6 +281,9 @@ function audit_action_label(string $action): string
         'confirm_production_order' => 'Orden de producción confirmada',
         'cancel_production_order' => 'Orden de producción anulada',
         'close_production_order' => 'Orden de producción cerrada',
+        'create_stock_check' => 'Verificación de stock creada',
+        'reserve_stock_check' => 'Stock reservado',
+        'cancel_stock_check' => 'Verificación de stock anulada',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -290,7 +295,21 @@ function production_stage_label(?string $stage): string
         'pending' => 'Pendiente',
         'stock_pending' => 'Stock pendiente',
         'ready_for_stock_check' => 'Listo para verificar stock',
+        'ready_for_cutting' => 'Listo para corte',
         default => ucfirst(str_replace('_', ' ', (string) $stage)),
+    };
+}
+
+function stock_check_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'sufficient' => 'Suficiente',
+        'insufficient' => 'Insuficiente',
+        'reserved' => 'Reservado',
+        'cancelled' => 'Anulado',
+        'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }
 

@@ -22,7 +22,7 @@
         <label>Etapa
             <select name="production_stage">
                 <option value="">Todas</option>
-                <?php foreach (['pending', 'stock_pending', 'ready_for_stock_check'] as $stage): ?>
+                <?php foreach (['pending', 'stock_pending', 'ready_for_stock_check', 'ready_for_cutting'] as $stage): ?>
                     <option value="<?= e($stage) ?>" <?= ($filters['production_stage'] ?? '') === $stage ? 'selected' : '' ?>><?= e(production_stage_label($stage)) ?></option>
                 <?php endforeach; ?>
             </select>

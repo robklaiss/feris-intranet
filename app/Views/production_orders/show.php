@@ -9,6 +9,9 @@
         <?php if (can('documents.transition') && ($order['status'] ?? '') === 'draft'): ?>
             <form method="post" action="/production-orders/<?= e((string) $order['id']) ?>/confirm"><?= csrf_field() ?><button class="button" type="submit">Confirmar</button></form>
         <?php endif; ?>
+        <?php if (can('documents.create') && ($order['status'] ?? '') === 'confirmed'): ?>
+            <a class="button" href="/production-orders/<?= e((string) $order['id']) ?>/stock-checks/create">Verificar stock</a>
+        <?php endif; ?>
         <?php if (can('documents.transition') && in_array(($order['status'] ?? ''), ['draft', 'confirmed'], true)): ?>
             <form method="post" action="/production-orders/<?= e((string) $order['id']) ?>/cancel" data-confirm="Anular esta orden de producción?"><?= csrf_field() ?><button class="button button--secondary" type="submit">Anular</button></form>
         <?php endif; ?>
@@ -16,6 +19,50 @@
             <form method="post" action="/production-orders/<?= e((string) $order['id']) ?>/close"><?= csrf_field() ?><button class="button button--secondary" type="submit">Cerrar</button></form>
         <?php endif; ?>
     </div>
+</section>
+
+<section class="grid-two">
+    <article class="panel">
+        <h2>Verificaciones de stock</h2>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Número</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <?php foreach ($stockChecks as $check): ?>
+                    <tr>
+                        <td><strong><?= e($check['check_number']) ?></strong></td>
+                        <td><span class="<?= e(status_badge_class($check['status'])) ?>"><?= e(stock_check_status_label($check['status'])) ?></span></td>
+                        <td><?= e(format_datetime($check['checked_at'])) ?></td>
+                        <td><a href="/stock-checks/<?= e((string) $check['id']) ?>">Ver</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if ($stockChecks === []): ?>
+                    <tr><td colspan="4" class="empty">Sin verificaciones de stock.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </article>
+    <article class="panel">
+        <h2>Reservas activas</h2>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Insumo</th><th>Item</th><th>Cantidad</th></tr></thead>
+                <tbody>
+                <?php foreach ($activeReservations as $reservation): ?>
+                    <tr>
+                        <td><?= e($reservation['internal_code']) ?></td>
+                        <td><?= e($reservation['item_code']) ?></td>
+                        <td><?= e((string) $reservation['reserved_quantity']) ?> <?= e($reservation['unit']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if ($activeReservations === []): ?>
+                    <tr><td colspan="3" class="empty">Sin reservas activas.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </article>
 </section>
 
 <section class="grid-two">

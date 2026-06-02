@@ -280,9 +280,35 @@ Criterios go/no-go:
 - no se puede producir mas que el saldo pendiente;
 - auditoria y timeline muestran la transicion.
 
-### Fase 5 en adelante
+### Fase 5: inventario de insumos y verificacion de stock
 
-Implementar stock, compras, recepcion, corte, externo, confeccion, calidad, empaque, inventario terminado y remision desde inventario en pasos separados.
+Objetivo:
+
+- registrar y codificar insumos internos;
+- asociar insumos a codigos de item, tipos de producto o tipos de material;
+- verificar stock desde ordenes de produccion confirmadas;
+- detectar faltantes y marcar la orden como `stock_pending`;
+- reservar stock suficiente sin descontar existencia fisica;
+- dejar la orden en `ready_for_cutting` cuando todo queda reservado.
+
+Tablas candidatas:
+
+- `raw_material_inventory`
+- `stock_checks`
+- `stock_check_items`
+- `raw_material_reservations`
+
+Criterios go/no-go:
+
+- no se puede verificar stock desde produccion `draft`, `cancelled` o `closed`;
+- no se permiten cantidades negativas ni reservas superiores al stock libre;
+- no se permite reservar una verificacion insuficiente ni reservar dos veces;
+- anular una orden de produccion libera reservas activas;
+- la fase no genera compras, presupuestos, corte ni consumos reales.
+
+### Fase 6 en adelante
+
+Implementar compras, recepcion, corte, externo, confeccion, calidad, empaque, inventario terminado y remision desde inventario en pasos separados.
 
 Cada fase debe incluir migracion, repositorio, servicio de reglas, vistas, pruebas y verificacion de backup/restore.
 

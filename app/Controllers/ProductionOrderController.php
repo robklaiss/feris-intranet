@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Repositories\CustomerPurchaseOrderRepository;
 use App\Repositories\ProductionOrderRepository;
+use App\Repositories\StockCheckRepository;
 use App\Services\NumberingService;
 use App\Services\OperationalAuditService;
 use App\Support\Request;
@@ -80,7 +81,13 @@ final class ProductionOrderController extends Controller
             return $this->redirectWithMessage('/production-orders', 'Orden de producción no encontrada.', 'error');
         }
 
-        return $this->render('production_orders/show', ['order' => $order]);
+        $stockRepo = new StockCheckRepository();
+
+        return $this->render('production_orders/show', [
+            'order' => $order,
+            'stockChecks' => $stockRepo->byProductionOrder((int) $id),
+            'activeReservations' => $stockRepo->activeReservations((int) $id),
+        ]);
     }
 
     public function confirm(Request $request, string $id)

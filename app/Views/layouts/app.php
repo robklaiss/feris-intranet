@@ -37,6 +37,7 @@
                 <a href="/purchase-orders" class="<?= str_starts_with($currentPath, '/purchase-orders') ? 'is-active' : '' ?>">Órdenes</a>
                 <a href="/customer-purchase-orders" class="<?= str_starts_with($currentPath, '/customer-purchase-orders') ? 'is-active' : '' ?>">OC cliente</a>
                 <a href="/production-orders" class="<?= str_starts_with($currentPath, '/production-orders') ? 'is-active' : '' ?>">Producción</a>
+                <a href="/raw-materials" class="<?= str_starts_with($currentPath, '/raw-materials') ? 'is-active' : '' ?>">Insumos</a>
                 <a href="/delivery-notes" class="<?= str_starts_with($currentPath, '/delivery-notes') ? 'is-active' : '' ?>">Notas de entrega</a>
                 <a href="/remissions" class="<?= str_starts_with($currentPath, '/remissions') ? 'is-active' : '' ?>">Remisiones</a>
                 <a href="/invoices" class="<?= str_starts_with($currentPath, '/invoices') ? 'is-active' : '' ?>">Facturas</a>

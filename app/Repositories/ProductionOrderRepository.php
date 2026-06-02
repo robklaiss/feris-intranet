@@ -235,7 +235,17 @@ final class ProductionOrderRepository extends BaseRepository
 
     public function cancel(int $id): void
     {
-        $this->transition($id, 'cancelled', 'cancelled_by', 'cancelled_at');
+        $pdo = $this->db();
+        $pdo->beginTransaction();
+
+        try {
+            (new StockCheckRepository())->releaseReservationsForProductionOrder($id, 'cancelled');
+            $this->transition($id, 'cancelled', 'cancelled_by', 'cancelled_at');
+            $pdo->commit();
+        } catch (Throwable $exception) {
+            $pdo->rollBack();
+            throw $exception;
+        }
     }
 
     public function close(int $id): void

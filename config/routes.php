@@ -14,9 +14,11 @@ use App\Controllers\LicitacionController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductionOrderController;
 use App\Controllers\PurchaseOrderController;
+use App\Controllers\RawMaterialInventoryController;
 use App\Controllers\RemissionController;
 use App\Controllers\ReportController;
 use App\Controllers\SettingsController;
+use App\Controllers\StockCheckController;
 use App\Support\Router;
 
 return static function (Router $router): void {
@@ -77,6 +79,19 @@ return static function (Router $router): void {
     $router->post('/production-orders/{id}/confirm', [ProductionOrderController::class, 'confirm']);
     $router->post('/production-orders/{id}/cancel', [ProductionOrderController::class, 'cancel']);
     $router->post('/production-orders/{id}/close', [ProductionOrderController::class, 'close']);
+    $router->get('/production-orders/{id}/stock-checks/create', [StockCheckController::class, 'create']);
+    $router->post('/production-orders/{id}/stock-checks', [StockCheckController::class, 'store']);
+
+    $router->get('/raw-materials', [RawMaterialInventoryController::class, 'index']);
+    $router->get('/raw-materials/create', [RawMaterialInventoryController::class, 'create']);
+    $router->post('/raw-materials', [RawMaterialInventoryController::class, 'store']);
+    $router->get('/raw-materials/{id}', [RawMaterialInventoryController::class, 'show']);
+    $router->get('/raw-materials/{id}/edit', [RawMaterialInventoryController::class, 'edit']);
+    $router->post('/raw-materials/{id}/update', [RawMaterialInventoryController::class, 'update']);
+
+    $router->get('/stock-checks/{id}', [StockCheckController::class, 'show']);
+    $router->post('/stock-checks/{id}/reserve', [StockCheckController::class, 'reserve']);
+    $router->post('/stock-checks/{id}/cancel', [StockCheckController::class, 'cancel']);
 
     $router->get('/delivery-notes', [DeliveryNoteController::class, 'index']);
     $router->get('/delivery-notes/create', [DeliveryNoteController::class, 'create']);

@@ -51,6 +51,10 @@ final class AccessControl
             return 'documents.transition';
         }
 
+        if (preg_match('#^/stock-checks/\d+/(reserve|cancel)$#', $path)) {
+            return 'documents.transition';
+        }
+
         if (preg_match('#^/(contracts|purchase-orders|delivery-notes|remissions|invoices)/\d+/export/csv$#', $path)) {
             return 'documents.export';
         }
@@ -79,6 +83,14 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if ($path === '/raw-materials' && $method === 'POST') {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/production-orders/\d+/stock-checks$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
         if ($path === '/licitaciones' && $method === 'POST') {
             return 'documents.create';
         }
@@ -91,6 +103,14 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if ($path === '/raw-materials/create') {
+            return 'documents.create';
+        }
+
+        if (preg_match('#^/production-orders/\d+/stock-checks/create$#', $path)) {
+            return 'documents.create';
+        }
+
         if ($path === '/licitaciones/create') {
             return 'documents.create';
         }
@@ -100,6 +120,10 @@ final class AccessControl
         }
 
         if (preg_match('#^/customer-purchase-orders/\d+/(edit|update)$#', $path)) {
+            return 'documents.edit';
+        }
+
+        if (preg_match('#^/raw-materials/\d+/(edit|update)$#', $path)) {
             return 'documents.edit';
         }
 
@@ -124,6 +148,10 @@ final class AccessControl
         }
 
         if (preg_match('#^/(customer-purchase-orders|production-orders)(/\d+)?$#', $path)) {
+            return 'documents.view';
+        }
+
+        if (preg_match('#^/(raw-materials|stock-checks)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 
