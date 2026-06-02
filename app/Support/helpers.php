@@ -331,6 +331,10 @@ function audit_action_label(string $action): string
         'complete_quality_rework_order' => 'Reproceso completado',
         'close_quality_rework_order' => 'Reproceso cerrado',
         'cancel_quality_rework_order' => 'Reproceso anulado',
+        'create_packaging_order' => 'Empaquetado creado',
+        'pack_packaging_order' => 'Empaquetado confirmado',
+        'cancel_packaging_order' => 'Empaquetado anulado',
+        'close_packaging_order' => 'Empaquetado cerrado',
         'send_simulated' => 'Enviado a placeholder',
         default => ucfirst(str_replace('_', ' ', $action)),
     };
@@ -350,6 +354,8 @@ function production_stage_label(?string $stage): string
         'in_sewing' => 'Pendiente de confección',
         'quality_control' => 'Pendiente de control de calidad',
         'rework_required' => 'Reproceso requerido',
+        'packaging' => 'Empaquetado',
+        'completed' => 'Completado',
         default => ucfirst(str_replace('_', ' ', (string) $stage)),
     };
 }
@@ -518,6 +524,41 @@ function quality_rework_status_label(?string $status): string
         'completed' => 'Completado',
         'cancelled' => 'Anulado',
         'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function packaging_order_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'draft' => 'Borrador',
+        'confirmed' => 'Confirmado',
+        'packed' => 'Empacado',
+        'cancelled' => 'Anulado',
+        'closed' => 'Cerrado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function packaging_item_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'pending' => 'Pendiente',
+        'packed' => 'Empacado',
+        'partial' => 'Parcial',
+        'cancelled' => 'Anulado',
+        default => ucfirst(str_replace('_', ' ', (string) $status)),
+    };
+}
+
+function finished_goods_status_label(?string $status): string
+{
+    return match ((string) $status) {
+        'available' => 'Disponible',
+        'reserved' => 'Reservado',
+        'remitted' => 'Remitido',
+        'depleted' => 'Agotado',
+        'cancelled' => 'Anulado',
         default => ucfirst(str_replace('_', ' ', (string) $status)),
     };
 }

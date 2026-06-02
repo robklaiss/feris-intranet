@@ -75,6 +75,10 @@ final class AccessControl
             return 'documents.transition';
         }
 
+        if (preg_match('#^/packaging-orders/\d+/(pack|cancel|close)$#', $path)) {
+            return 'documents.transition';
+        }
+
         if (preg_match('#^/stock-checks/\d+/(reserve|cancel)$#', $path)) {
             return 'documents.transition';
         }
@@ -159,6 +163,10 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/quality-control/\d+/packaging-orders$#', $path) && $method === 'POST') {
+            return 'documents.create';
+        }
+
         if ($path === '/seamsters' && $method === 'POST') {
             return 'documents.create';
         }
@@ -235,6 +243,10 @@ final class AccessControl
             return 'documents.create';
         }
 
+        if (preg_match('#^/quality-control/\d+/packaging-orders/create$#', $path)) {
+            return 'documents.create';
+        }
+
         if ($path === '/seamsters/create') {
             return 'documents.create';
         }
@@ -299,7 +311,7 @@ final class AccessControl
             return 'documents.view';
         }
 
-        if (preg_match('#^/(customer-purchase-orders|production-orders|cutting-orders|external-work-orders|sewing-orders|quality-control|quality-reworks)(/\d+)?$#', $path)) {
+        if (preg_match('#^/(customer-purchase-orders|production-orders|cutting-orders|external-work-orders|sewing-orders|quality-control|quality-reworks|packaging-orders|finished-goods-inventory)(/\d+)?$#', $path)) {
             return 'documents.view';
         }
 

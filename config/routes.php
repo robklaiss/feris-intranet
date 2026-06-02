@@ -14,8 +14,10 @@ use App\Controllers\ExternalWorkOrderController;
 use App\Controllers\GoodsReceiptController;
 use App\Controllers\InvoiceController;
 use App\Controllers\LicitacionController;
+use App\Controllers\FinishedGoodsInventoryController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductionOrderController;
+use App\Controllers\PackagingOrderController;
 use App\Controllers\QualityControlController;
 use App\Controllers\PurchaseOrderController;
 use App\Controllers\PurchaseRequisitionController;
@@ -136,6 +138,8 @@ return static function (Router $router): void {
 
     $router->get('/quality-control', [QualityControlController::class, 'index']);
     $router->get('/quality-control/{id}', [QualityControlController::class, 'show']);
+    $router->get('/quality-control/{id}/packaging-orders/create', [PackagingOrderController::class, 'createFromQualityControl']);
+    $router->post('/quality-control/{id}/packaging-orders', [PackagingOrderController::class, 'storeFromQualityControl']);
     $router->post('/quality-control/{id}/results', [QualityControlController::class, 'results']);
     $router->post('/quality-control/{id}/confirm', [QualityControlController::class, 'confirm']);
     $router->post('/quality-control/{id}/cancel', [QualityControlController::class, 'cancel']);
@@ -145,6 +149,14 @@ return static function (Router $router): void {
     $router->post('/quality-reworks/{id}/complete', [QualityControlController::class, 'completeRework']);
     $router->post('/quality-reworks/{id}/cancel', [QualityControlController::class, 'cancelRework']);
     $router->post('/quality-reworks/{id}/close', [QualityControlController::class, 'closeRework']);
+
+    $router->get('/packaging-orders', [PackagingOrderController::class, 'index']);
+    $router->get('/packaging-orders/{id}', [PackagingOrderController::class, 'show']);
+    $router->post('/packaging-orders/{id}/pack', [PackagingOrderController::class, 'pack']);
+    $router->post('/packaging-orders/{id}/cancel', [PackagingOrderController::class, 'cancel']);
+    $router->post('/packaging-orders/{id}/close', [PackagingOrderController::class, 'close']);
+    $router->get('/finished-goods-inventory', [FinishedGoodsInventoryController::class, 'index']);
+    $router->get('/finished-goods-inventory/{id}', [FinishedGoodsInventoryController::class, 'show']);
 
     $router->get('/raw-materials', [RawMaterialInventoryController::class, 'index']);
     $router->get('/raw-materials/create', [RawMaterialInventoryController::class, 'create']);

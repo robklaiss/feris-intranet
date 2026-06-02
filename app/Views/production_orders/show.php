@@ -169,6 +169,54 @@
     </article>
 </section>
 
+
+<section class="grid-two">
+    <article class="panel">
+        <h2>Empaquetado</h2>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Número</th><th>Calidad</th><th>Estado</th><th>Empacado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <?php foreach (($packagingOrders ?? []) as $packaging): ?>
+                    <tr>
+                        <td><strong><?= e($packaging['packaging_number']) ?></strong></td>
+                        <td><a href="/quality-control/<?= e((string) $packaging['quality_control_check_id']) ?>"><?= e($packaging['qc_number']) ?></a></td>
+                        <td><span class="<?= e(status_badge_class($packaging['status'])) ?>"><?= e(packaging_order_status_label($packaging['status'])) ?></span></td>
+                        <td><?= e(format_datetime($packaging['packed_at'])) ?></td>
+                        <td><a href="/packaging-orders/<?= e((string) $packaging['id']) ?>">Ver</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (($packagingOrders ?? []) === []): ?>
+                    <tr><td colspan="5" class="empty">Sin empaquetado.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </article>
+    <article class="panel">
+        <h2>Producto terminado</h2>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Código</th><th>Ítem</th><th>Disponible</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <?php foreach (($finishedGoods ?? []) as $inventory): ?>
+                    <tr>
+                        <td><strong><?= e($inventory['internal_code']) ?></strong></td>
+                        <td><?= e($inventory['item_code']) ?></td>
+                        <td><?= e((string) $inventory['quantity_available']) ?></td>
+                        <td><span class="<?= e(status_badge_class($inventory['status'])) ?>"><?= e(finished_goods_status_label($inventory['status'])) ?></span></td>
+                        <td><a href="/finished-goods-inventory/<?= e((string) $inventory['id']) ?>">Ver</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (($finishedGoods ?? []) === []): ?>
+                    <tr><td colspan="5" class="empty">Sin inventario terminado.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+
 <section class="grid-two">
     <article class="panel">
         <h2>Datos</h2>

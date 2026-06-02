@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Repositories\QualityControlRepository;
 use App\Repositories\QualityReworkRepository;
+use App\Repositories\PackagingOrderRepository;
 use App\Support\Request;
 use Throwable;
 
@@ -103,7 +104,11 @@ final class QualityControlController extends Controller
             return $this->redirectWithMessage('/quality-control', 'Control de calidad no encontrado.', 'error');
         }
 
-        return $this->render('quality_control/show', ['check' => $check]);
+        return $this->render('quality_control/show', [
+            'check' => $check,
+            'packagingOrders' => (new PackagingOrderRepository())->byQualityControl((int) $id),
+            'availablePackagingItems' => (new PackagingOrderRepository())->availableItemsFromQualityControl((int) $id),
+        ]);
     }
 
     public function results(Request $request, string $id)

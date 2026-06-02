@@ -25,6 +25,9 @@
                 <button type="submit" class="button button--secondary">Anular</button>
             </form>
         <?php endif; ?>
+        <?php if (can('documents.create') && in_array(($check['status'] ?? ''), ['approved', 'partially_approved'], true) && ($availablePackagingItems ?? []) !== []): ?>
+            <a href="/quality-control/<?= e((string) $check['id']) ?>/packaging-orders/create" class="button">Crear empaquetado</a>
+        <?php endif; ?>
         <?php if (can('documents.transition') && in_array(($check['status'] ?? ''), ['approved', 'partially_approved', 'rejected'], true)): ?>
             <form method="post" action="/quality-control/<?= e((string) $check['id']) ?>/close">
                 <?= csrf_field() ?>
@@ -134,6 +137,30 @@
         </form>
     </section>
 <?php endif; ?>
+
+
+<section class="panel">
+    <h2>Empaquetado</h2>
+    <div class="table-wrap">
+        <table class="table">
+            <thead><tr><th>Número</th><th>Producción</th><th>Estado</th><th>Empacado</th><th>Acciones</th></tr></thead>
+            <tbody>
+            <?php foreach (($packagingOrders ?? []) as $packaging): ?>
+                <tr>
+                    <td><strong><?= e($packaging['packaging_number']) ?></strong></td>
+                    <td><a href="/production-orders/<?= e((string) $packaging['production_order_id']) ?>"><?= e($packaging['production_number']) ?></a></td>
+                    <td><span class="<?= e(status_badge_class($packaging['status'])) ?>"><?= e(packaging_order_status_label($packaging['status'])) ?></span></td>
+                    <td><?= e(format_datetime($packaging['packed_at'])) ?></td>
+                    <td><a href="/packaging-orders/<?= e((string) $packaging['id']) ?>">Ver</a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (($packagingOrders ?? []) === []): ?>
+                <tr><td colspan="5" class="empty">Sin empaquetado.</td></tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 
 <section class="panel">
     <h2>Órdenes de reproceso</h2>
